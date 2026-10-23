@@ -60,6 +60,7 @@ it's fast, light on memory and battery, and gets Safari's security updates.
 | **Import** | Bring over Arc's Spaces and pinned tabs, and bookmarks and history from Chrome and Safari. |
 | **AI** | Summarize a page, ask questions about it and tidy tab titles, with Claude or on-device Apple Intelligence models. |
 | **App icon** | Choose the white Marc icon or the dark Aurora one, or let it follow light and dark appearance. |
+| **Welcome** | A full-screen intro with an original, synthesized soundtrack greets new users. Replay it from Help › Replay Welcome. |
 
 See the [feature inventory](docs/FEATURE_INVENTORY.md) for the complete list with keyboard shortcuts, and
 [platform limitations](docs/LIMITATIONS.md) for the few Arc features WebKit can't support.
