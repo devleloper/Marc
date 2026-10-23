@@ -136,9 +136,12 @@ extension WebTab: WKNavigationDelegate {
             setZoom(preferences.zoom)
         }
 
-        controller.removeAllContentRuleLists()
-        if environment.isContentBlockingEnabled(), preferences.blocksContent {
-            environment.contentRuleLists().forEach(controller.add)
+        let ruleLists = environment.isContentBlockingEnabled() && preferences.blocksContent ? environment.contentRuleLists() : []
+        let identities = ruleLists.map(ObjectIdentifier.init)
+        if identities != appliedContentRuleLists {
+            controller.removeAllContentRuleLists()
+            ruleLists.forEach(controller.add)
+            appliedContentRuleLists = identities
         }
 
         guard host != preparedHost else { return }

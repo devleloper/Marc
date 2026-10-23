@@ -14,8 +14,14 @@ public final class CommandBarModel {
         }
     }
 
-    public private(set) var results: [CommandBarResult] = []
-    public var selectedIndex = 0
+    public private(set) var results: [CommandBarResult] = [] {
+        didSet { preresolveSelection() }
+    }
+
+    public var selectedIndex = 0 {
+        didSet { preresolveSelection() }
+    }
+
     /// A site chosen with Tab ("Search YouTube"); results then search that site.
     public private(set) var siteSearch: SearchEngine?
     public let placement: BrowserWindowModel.CommandBarPlacement
@@ -118,6 +124,16 @@ public final class CommandBarModel {
     private func commandCandidates() -> [CommandDescriptor] {
         guard let window, placement == .newTab else { return [] }
         return BrowserCommand.searchable.filter(window.canPerform).map(\.descriptor)
+    }
+
+    /// Looks up the selected site's address ahead of time, so opening it doesn't wait for DNS.
+    private func preresolveSelection() {
+        guard results.indices.contains(selectedIndex) else { return }
+        switch results[selectedIndex] {
+        case let .navigate(url): session.engine.preresolver.preresolve(url)
+        case let .history(page): session.engine.preresolver.preresolve(page.url)
+        default: break
+        }
     }
 
     // MARK: - Interaction

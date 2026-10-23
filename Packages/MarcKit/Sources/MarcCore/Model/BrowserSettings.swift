@@ -19,6 +19,8 @@ public struct BrowserSettings: Hashable, Sendable, Codable {
     public var tidiesDownloadNames = false
     public var hasCompletedOnboarding = false
     public var showsHoveredLinkStatus = true
+    /// Look up the address of a hovered link or the selected Command Bar result ahead of time.
+    public var preloadsLinkAddresses = true
     /// Origins for which the user chose "Never Save" when offered to save a password.
     public var neverSavePasswordOrigins: [String] = []
 
@@ -45,6 +47,7 @@ public struct BrowserSettings: Hashable, Sendable, Codable {
         case tidiesDownloadNames
         case hasCompletedOnboarding
         case showsHoveredLinkStatus
+        case preloadsLinkAddresses
         case neverSavePasswordOrigins
     }
 
@@ -70,6 +73,7 @@ public struct BrowserSettings: Hashable, Sendable, Codable {
         tidiesDownloadNames = value(.tidiesDownloadNames, defaults.tidiesDownloadNames)
         hasCompletedOnboarding = value(.hasCompletedOnboarding, defaults.hasCompletedOnboarding)
         showsHoveredLinkStatus = value(.showsHoveredLinkStatus, defaults.showsHoveredLinkStatus)
+        preloadsLinkAddresses = value(.preloadsLinkAddresses, defaults.preloadsLinkAddresses)
         neverSavePasswordOrigins = value(.neverSavePasswordOrigins, defaults.neverSavePasswordOrigins)
     }
 }

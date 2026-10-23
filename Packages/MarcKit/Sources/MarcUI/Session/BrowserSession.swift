@@ -75,6 +75,7 @@ public final class BrowserSession {
 
     /// Loads secondary data, restores windows and starts background maintenance.
     public func start() async {
+        engine.preresolver.isEnabled = { [weak self] in self?.settings.settings.preloadsLinkAddresses ?? false }
         startExtensions()
         restoreWindows()
         engine.contentBlocker.onRuleListsChanged = { [weak self] in self?.runtime.contentRulesDidChange() }

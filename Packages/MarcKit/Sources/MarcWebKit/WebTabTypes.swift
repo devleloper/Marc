@@ -130,6 +130,8 @@ public struct WebTabEnvironment {
     public var isContentBlockingEnabled: () -> Bool
     public var boosts: (String) -> [Boost]
     public var favicons: FaviconLoader
+    /// Looks up a likely next site's address ahead of time (see `HostPreresolver`).
+    public var preresolve: (URL) -> Void
 
     public init(
         applicationName: String,
@@ -137,11 +139,13 @@ public struct WebTabEnvironment {
         isContentBlockingEnabled: @escaping () -> Bool,
         boosts: @escaping (String) -> [Boost],
         favicons: FaviconLoader,
+        preresolve: @escaping (URL) -> Void = { _ in },
     ) {
         self.applicationName = applicationName
         self.contentRuleLists = contentRuleLists
         self.isContentBlockingEnabled = isContentBlockingEnabled
         self.boosts = boosts
         self.favicons = favicons
+        self.preresolve = preresolve
     }
 }

@@ -45,3 +45,19 @@ The first public version will be 0.1.0.
 - **Updates** through Sparkle in signed releases.
 - Unit, integration and UI tests; CI and release workflows. Releases are ad hoc-signed previews
   until Developer ID signing is configured.
+
+### Changed
+
+- Buttons sink slightly when pressed and spring back, as in Arc.
+- The sidebar slides in and out smoothly, with the page following it and the traffic lights
+  fading along.
+- Two-finger swipes switch Spaces only over the sidebar; over a page they go back and forward.
+- Pages load sooner: Marc looks up the address of a hovered link or the selected Command Bar
+  result in advance (Settings › Privacy › Faster loading) and no longer re-sends content-blocking
+  rules on every navigation. A thin bar shows loading progress at the top of the page.
+
+### Fixed
+
+- Keyboard-focus rings no longer linger on buttons and fields after clicking them.
+- Drop indicators in the sidebar no longer stay on screen after a drag.
+- In full screen, the sidebar toolbar no longer leaves an empty gap for the hidden traffic lights.

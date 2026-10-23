@@ -45,6 +45,9 @@ public final class WebTab: NSObject {
     @ObservationIgnored var userInitiatedURL: URL?
     @ObservationIgnored var allowedInsecureHosts: Set<String> = []
     @ObservationIgnored var preparedHost: String?
+    /// The content rule lists currently installed, so unchanged lists aren't sent to the page's
+    /// process again on every navigation.
+    @ObservationIgnored var appliedContentRuleLists: [ObjectIdentifier] = []
     @ObservationIgnored var pendingTransition = VisitTransition.link
     @ObservationIgnored let logger = Logger.marc("WebTab")
 
@@ -138,6 +141,7 @@ public final class WebTab: NSObject {
 
     func makeWebView(configuration: WKWebViewConfiguration) {
         preparedHost = nil
+        appliedContentRuleLists = []
         let controller = configuration.userContentController
         installBaseScripts(on: controller)
         let webView = MarcWebView(frame: .zero, configuration: configuration)
