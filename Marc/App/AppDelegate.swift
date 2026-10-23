@@ -25,7 +25,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let menu = MainMenu(session: environment.session, windows: windows)
             self.menu = menu
             NSApp.mainMenu = menu.build()
+            let demoTab = DemoWorkspace.isRequested ? DemoWorkspace.populate(environment.session.store) : nil
             await environment.session.start()
+            if let demoTab { (environment.session.keyWindow ?? environment.session.openWindow()).select(demoTab) }
             open(pendingURLs)
             pendingURLs = []
             if !environment.session.settings.settings.hasCompletedOnboarding {
