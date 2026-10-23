@@ -1,0 +1,113 @@
+included:
+  - Marc
+  - MarcUITests
+  - Packages/MarcKit/Sources
+  - Packages/MarcKit/Tests
+
+excluded:
+  - Packages/MarcKit/.build
+  - build
+  - DerivedData
+
+disabled_rules:
+  - trailing_comma # SwiftFormat owns comma style
+  - opening_brace # SwiftFormat owns brace wrapping
+  - todo
+
+opt_in_rules:
+  - array_init
+  - closure_end_indentation
+  - closure_spacing
+  - contains_over_filter_count
+  - contains_over_first_not_nil
+  - discouraged_object_literal
+  - empty_collection_literal
+  - empty_count
+  - empty_string
+  - explicit_init
+  - fallthrough
+  - fatal_error_message
+  - first_where
+  - flatmap_over_map_reduce
+  - identical_operands
+  - implicit_return
+  - joined_default_parameter
+  - last_where
+  - legacy_multiple
+  - literal_expression_end_indentation
+  - modifier_order
+  - operator_usage_whitespace
+  - overridden_super_call
+  - pattern_matching_keywords
+  - prefer_self_type_over_type_of_self
+  - redundant_nil_coalescing
+  - redundant_type_annotation
+  - sorted_first_last
+  - static_operator
+  - toggle_bool
+  - unneeded_parentheses_in_closure_argument
+  - unowned_variable_capture
+  - vertical_parameter_alignment_on_call
+  - yoda_condition
+
+line_length:
+  warning: 140
+  error: 180
+  ignores_urls: true
+  ignores_comments: true
+
+type_body_length:
+  warning: 400
+  error: 600
+
+file_length:
+  warning: 600
+  error: 900
+
+function_body_length:
+  warning: 60
+  error: 100
+
+cyclomatic_complexity:
+  warning: 12
+  error: 20
+
+identifier_name:
+  min_length:
+    warning: 2
+  excluded:
+    - id
+    - x
+    - y
+    - r
+    - g
+    - b
+    - a
+    - h
+    - s
+    - v
+    - i
+    - j
+    - db
+    - to
+    - at
+    - c
+    - d
+    - e
+    - t
+
+type_name:
+  excluded:
+    - ID
+
+function_parameter_count:
+  warning: 8
+  error: 10
+
+nesting:
+  type_level: 2
+
+large_tuple:
+  warning: 3
+
+reporter: xcode
