@@ -14,7 +14,8 @@ packages:
     path: Packages/MarcKit
   Sparkle:
     url: https://github.com/sparkle-project/Sparkle
-    from: 2.10.0
+    # Pinned because the generated project (and its Package.resolved) is not checked in.
+    exactVersion: 2.10.0
 
 settings:
   base:
