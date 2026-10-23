@@ -42,7 +42,6 @@ let package = Package(
         .target(
             name: "MarcUI",
             dependencies: ["MarcCore", "MarcDesignSystem", "MarcWebKit"],
-            resources: [.process("Resources")],
             swiftSettings: mainActorSettings,
         ),
 
