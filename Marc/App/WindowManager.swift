@@ -4,7 +4,7 @@ import MarcUI
 import Observation
 import SwiftUI
 
-/// Creates and tracks the app's windows: browser windows, Settings and onboarding.
+/// Creates and tracks the app's windows: browser windows, Settings, the welcome intro and onboarding.
 @MainActor
 final class WindowManager {
     private let session: BrowserSession
@@ -13,6 +13,7 @@ final class WindowManager {
     private var settingsWindow: NSWindow?
     private var settingsPane = SettingsPaneState()
     private var onboardingWindow: NSWindow?
+    private let welcome = WelcomeIntroController()
 
     init(session: BrowserSession, updater: Updater) {
         self.session = session
@@ -54,6 +55,12 @@ final class WindowManager {
         window.setFrameAutosaveName("MarcSettings")
         settingsWindow = window
         window.makeKeyAndOrderFront(nil)
+    }
+
+    /// Plays the full-screen welcome intro, then calls `completion`.
+    func showWelcome(playsMusic: Bool = true, then completion: @escaping () -> Void = {}) {
+        guard !welcome.isShowing else { return }
+        welcome.show(playsMusic: playsMusic, onFinish: completion)
     }
 
     func showOnboarding() {

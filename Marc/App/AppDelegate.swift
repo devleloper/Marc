@@ -32,8 +32,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if let demoTab { (environment.session.keyWindow ?? environment.session.openWindow()).select(demoTab) }
             open(pendingURLs)
             pendingURLs = []
-            if !environment.session.settings.settings.hasCompletedOnboarding {
-                windows.showOnboarding()
+            let needsOnboarding = !environment.session.settings.settings.hasCompletedOnboarding
+            // New users are greeted by the intro, then onboarding. `-show-welcome` plays it on demand.
+            if needsOnboarding || ProcessInfo.processInfo.arguments.contains("-show-welcome") {
+                windows.showWelcome(playsMusic: !environment.isUITesting) {
+                    if needsOnboarding { windows.showOnboarding() }
+                }
             }
         } catch {
             logger.fault("Launch failed: \(error.localizedDescription, privacy: .public)")

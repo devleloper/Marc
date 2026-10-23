@@ -155,6 +155,8 @@ final class MainMenu: NSObject, NSMenuItemValidation, NSMenuDelegate {
         help.target = self
         let shortcuts = menu.addItem(withTitle: "Keyboard Shortcuts", action: #selector(openShortcuts), keyEquivalent: "")
         shortcuts.target = self
+        let welcome = menu.addItem(withTitle: "Replay Welcome", action: #selector(replayWelcome), keyEquivalent: "")
+        welcome.target = self
         let issue = menu.addItem(withTitle: "Report an Issue…", action: #selector(reportIssue), keyEquivalent: "")
         issue.target = self
         return menu
@@ -255,6 +257,10 @@ final class MainMenu: NSObject, NSMenuItemValidation, NSMenuDelegate {
 
     @objc private func openShortcuts() {
         windows.showSettings(.shortcuts)
+    }
+
+    @objc private func replayWelcome() {
+        windows.showWelcome()
     }
 
     @objc private func reportIssue() {

@@ -25,6 +25,19 @@ final class MarcUITests: XCTestCase {
     }
 
     @MainActor
+    func testWelcomeIntroCanBeSkipped() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-ui-testing", "-show-welcome"]
+        app.launch()
+        defer { app.terminate() }
+        let skip = app.buttons["welcomeSkip"]
+        XCTAssertTrue(skip.waitForExistence(timeout: 10))
+        app.typeKey(.escape, modifierFlags: [])
+        XCTAssertTrue(skip.waitForNonExistence(timeout: 5), "Escape skips the intro")
+        XCTAssertTrue(app.descendants(matching: .any)["addressField"].waitForExistence(timeout: 5))
+    }
+
+    @MainActor
     func testCommandBarOpensATab() {
         let app = launch()
         defer { app.terminate() }
