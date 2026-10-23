@@ -1,6 +1,10 @@
-# Builds a Developer ID-signed, notarized Marc.dmg and a signed Sparkle appcast, and attaches
-# them to a DRAFT GitHub release. Nothing becomes public until a maintainer reviews the draft
-# and publishes it by hand. See docs/RELEASING.md for the required secrets.
+# Builds Marc-<version>.dmg and attaches it to a DRAFT GitHub release. Nothing becomes public
+# until a maintainer reviews the draft and publishes it by hand. See docs/RELEASING.md.
+#
+# - With the Developer ID, notarization and Sparkle secrets configured, the app and disk image
+#   are signed, notarized and stapled, and a signed Sparkle appcast enables automatic updates.
+# - Without any of them, the workflow builds an ad hoc-signed preview, marked as a pre-release,
+#   that macOS asks the user to approve once and that doesn't update itself.
 name: Release
 
 on:
@@ -31,7 +35,7 @@ defaults:
 
 jobs:
   release:
-    name: Build, notarize and draft the release
+    name: Build and draft the release
     runs-on: macos-26
     timeout-minutes: 90
     # Configure required reviewers on this environment to approve every release run.
@@ -57,7 +61,8 @@ jobs:
           echo "tag=v$version" >> "$GITHUB_OUTPUT"
           [[ "$version" == *-* ]] && echo "prerelease=true" >> "$GITHUB_OUTPUT" || echo "prerelease=false" >> "$GITHUB_OUTPUT"
 
-      - name: Check the signing configuration
+      - name: Choose the signing mode
+        id: signing
         env:
           DEVELOPER_ID_CERTIFICATE_P12: ${{ secrets.DEVELOPER_ID_CERTIFICATE_P12 }}
           DEVELOPER_ID_CERTIFICATE_PASSWORD: ${{ secrets.DEVELOPER_ID_CERTIFICATE_PASSWORD }}
@@ -68,14 +73,22 @@ jobs:
           SPARKLE_PRIVATE_ED_KEY: ${{ secrets.SPARKLE_PRIVATE_ED_KEY }}
           SPARKLE_PUBLIC_ED_KEY: ${{ vars.SPARKLE_PUBLIC_ED_KEY }}
         run: |
-          missing=()
-          for name in DEVELOPER_ID_CERTIFICATE_P12 DEVELOPER_ID_CERTIFICATE_PASSWORD APPLE_TEAM_ID \
-                      NOTARY_API_KEY_ID NOTARY_API_ISSUER_ID NOTARY_API_KEY_P8 \
-                      SPARKLE_PRIVATE_ED_KEY SPARKLE_PUBLIC_ED_KEY; do
-            [[ -n "${!name}" ]] || missing+=("$name")
+          names=(DEVELOPER_ID_CERTIFICATE_P12 DEVELOPER_ID_CERTIFICATE_PASSWORD APPLE_TEAM_ID
+                 NOTARY_API_KEY_ID NOTARY_API_ISSUER_ID NOTARY_API_KEY_P8
+                 SPARKLE_PRIVATE_ED_KEY SPARKLE_PUBLIC_ED_KEY)
+          present=() missing=()
+          for name in "${names[@]}"; do
+            if [[ -n "${!name}" ]]; then present+=("$name"); else missing+=("$name"); fi
           done
-          if (( ${#missing[@]} > 0 )); then
-            echo "::error::Release signing is not configured. Missing: ${missing[*]}. See docs/RELEASING.md."
+          if (( ${#missing[@]} == 0 )); then
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+            echo "Signing with Developer ID and notarizing." >> "$GITHUB_STEP_SUMMARY"
+          elif (( ${#present[@]} == 0 )); then
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No Developer ID secrets are configured; building an ad hoc-signed preview."
+            echo "Building an ad hoc-signed **preview** (no Developer ID secrets configured)." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::error::Release signing is only partly configured. Missing: ${missing[*]}. See docs/RELEASING.md."
             exit 1
           fi
 
@@ -85,19 +98,40 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Check the changelog and extract release notes
+      - name: Extract the release notes from the changelog
         env:
           VERSION: ${{ steps.version.outputs.version }}
+          SIGNED: ${{ steps.signing.outputs.signed }}
         run: |
-          awk -v heading="## [$VERSION]" '
-            index($0, heading) == 1 { found = 1; next }
-            found && /^## \[/ { exit }
-            found { print }
-          ' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
-          if [[ ! -s "$RUNNER_TEMP/notes.md" ]]; then
+          section() {
+            awk -v heading="## [$1]" '
+              index($0, heading) == 1 { found = 1; next }
+              found && /^## \[/ { exit }
+              found { print }
+            ' CHANGELOG.md
+          }
+          notes="$(section "$VERSION")"
+          # Pre-releases may use the notes of their final version, or of Unreleased.
+          if [[ -z "$notes" && "$VERSION" == *-* ]]; then notes="$(section "${VERSION%%-*}")"; fi
+          if [[ -z "$notes" && "$VERSION" == *-* ]]; then notes="$(section "Unreleased")"; fi
+          if [[ -z "$notes" ]]; then
             echo "::error::CHANGELOG.md has no '## [$VERSION]' section"
             exit 1
           fi
+          {
+            if [[ "$SIGNED" != "true" ]]; then
+              cat <<'NOTICE'
+          > [!WARNING]
+          > **Preview build.** It is signed ad hoc, not with an Apple Developer ID, and isn't notarized.
+          > macOS blocks it the first time: move Marc to Applications, try to open it, then choose
+          > **Open Anyway** in System Settings → Privacy & Security. Previews don't update themselves;
+          > download new versions from the Releases page. After an update, macOS may ask once whether
+          > Marc can use the passwords it saved in your keychain.
+
+          NOTICE
+            fi
+            printf '%s\n' "$notes"
+          } > "$RUNNER_TEMP/notes.md"
 
       - name: Install pinned tools
         run: |
@@ -105,6 +139,7 @@ jobs:
           echo "$PWD/.tools/bin" >> "$GITHUB_PATH"
 
       - name: Import the Developer ID certificate
+        if: steps.signing.outputs.signed == 'true'
         env:
           DEVELOPER_ID_CERTIFICATE_P12: ${{ secrets.DEVELOPER_ID_CERTIFICATE_P12 }}
           DEVELOPER_ID_CERTIFICATE_PASSWORD: ${{ secrets.DEVELOPER_ID_CERTIFICATE_PASSWORD }}
@@ -125,20 +160,31 @@ jobs:
       - name: Archive
         env:
           VERSION: ${{ steps.version.outputs.version }}
+          SIGNED: ${{ steps.signing.outputs.signed }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           SPARKLE_PUBLIC_ED_KEY: ${{ vars.SPARKLE_PUBLIC_ED_KEY }}
         run: |
           xcodegen generate
           build_number="$(git rev-list --count HEAD)"
+          if [[ "$SIGNED" == "true" ]]; then
+            # Notarization requires the hardened runtime.
+            signing=(CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY="Developer ID Application" DEVELOPMENT_TEAM="$APPLE_TEAM_ID"
+                     ENABLE_HARDENED_RUNTIME=YES OTHER_CODE_SIGN_FLAGS="--timestamp --keychain $KEYCHAIN"
+                     SPARKLE_PUBLIC_ED_KEY="$SPARKLE_PUBLIC_ED_KEY")
+          else
+            # Ad hoc signing. The hardened runtime's library validation rejects ad hoc-signed
+            # frameworks (Sparkle), so it stays off; without a Sparkle key the updater stays off.
+            signing=(CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= ENABLE_HARDENED_RUNTIME=NO
+                     SPARKLE_PUBLIC_ED_KEY=)
+          fi
           xcodebuild -project Marc.xcodeproj -scheme Marc -configuration Release \
             -destination 'generic/platform=macOS' -derivedDataPath build/DerivedData \
             -archivePath "$RUNNER_TEMP/Marc.xcarchive" archive \
             MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$build_number" \
-            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY="Developer ID Application" DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-            OTHER_CODE_SIGN_FLAGS="--timestamp --keychain $KEYCHAIN" \
-            SPARKLE_PUBLIC_ED_KEY="$SPARKLE_PUBLIC_ED_KEY" | xcbeautify --renderer github-actions
+            "${signing[@]}" | xcbeautify --renderer github-actions
 
       - name: Export the signed app
+        if: steps.signing.outputs.signed == 'true'
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
@@ -158,7 +204,18 @@ jobs:
             -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/export"
           codesign --verify --deep --strict --verbose=2 "$RUNNER_TEMP/export/Marc.app"
 
+      - name: Copy the preview app
+        if: steps.signing.outputs.signed != 'true'
+        run: |
+          mkdir -p "$RUNNER_TEMP/export"
+          ditto "$RUNNER_TEMP/Marc.xcarchive/Products/Applications/Marc.app" "$RUNNER_TEMP/export/Marc.app"
+          codesign --verify --deep --strict --verbose=2 "$RUNNER_TEMP/export/Marc.app"
+
+      - name: Smoke-test the app
+        run: scripts/smoke-test.sh "$RUNNER_TEMP/export/Marc.app"
+
       - name: Notarize the app
+        if: steps.signing.outputs.signed == 'true'
         env:
           NOTARY_API_KEY_ID: ${{ secrets.NOTARY_API_KEY_ID }}
           NOTARY_API_ISSUER_ID: ${{ secrets.NOTARY_API_ISSUER_ID }}
@@ -171,22 +228,29 @@ jobs:
           xcrun stapler staple "$RUNNER_TEMP/export/Marc.app"
           spctl --assess --type execute --verbose=2 "$RUNNER_TEMP/export/Marc.app"
 
-      - name: Build, sign and notarize the disk image
+      - name: Build the disk image
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/dmg" dist
+          ditto "$RUNNER_TEMP/export/Marc.app" "$RUNNER_TEMP/dmg/Marc.app"
+          ln -s /Applications "$RUNNER_TEMP/dmg/Applications"
+          hdiutil create -volname Marc -srcfolder "$RUNNER_TEMP/dmg" -ov -format UDZO "dist/Marc-$VERSION.dmg"
+
+      - name: Sign and notarize the disk image
+        if: steps.signing.outputs.signed == 'true'
         env:
           VERSION: ${{ steps.version.outputs.version }}
           NOTARY_API_KEY_ID: ${{ secrets.NOTARY_API_KEY_ID }}
           NOTARY_API_ISSUER_ID: ${{ secrets.NOTARY_API_ISSUER_ID }}
           NOTARY_API_KEY_PATH: ${{ runner.temp }}/AuthKey.p8
         run: |
-          mkdir -p "$RUNNER_TEMP/dmg" dist
-          cp -R "$RUNNER_TEMP/export/Marc.app" "$RUNNER_TEMP/dmg/"
-          ln -s /Applications "$RUNNER_TEMP/dmg/Applications"
-          hdiutil create -volname Marc -srcfolder "$RUNNER_TEMP/dmg" -ov -format UDZO "dist/Marc-$VERSION.dmg"
           codesign --sign "Developer ID Application" --timestamp --keychain "$KEYCHAIN" "dist/Marc-$VERSION.dmg"
           scripts/notarize.sh "dist/Marc-$VERSION.dmg"
           xcrun stapler staple "dist/Marc-$VERSION.dmg"
 
       - name: Generate the Sparkle appcast
+        if: steps.signing.outputs.signed == 'true'
         env:
           VERSION: ${{ steps.version.outputs.version }}
           TAG: ${{ steps.version.outputs.tag }}
@@ -214,12 +278,20 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
           TAG: ${{ steps.version.outputs.tag }}
           PRERELEASE: ${{ steps.version.outputs.prerelease }}
+          SIGNED: ${{ steps.signing.outputs.signed }}
         run: |
-          flags=(--draft --verify-tag --title "Marc $VERSION" --notes-file "$RUNNER_TEMP/notes.md")
-          [[ "$PRERELEASE" == "true" ]] && flags+=(--prerelease)
+          title="Marc $VERSION"
+          flags=(--draft --verify-tag --notes-file "$RUNNER_TEMP/notes.md")
+          if [[ "$SIGNED" != "true" ]]; then
+            title="$title (preview)"
+            flags+=(--prerelease)
+          elif [[ "$PRERELEASE" == "true" ]]; then
+            flags+=(--prerelease)
+          fi
           ( cd dist && shasum -a 256 "Marc-$VERSION.dmg" > "Marc-$VERSION.dmg.sha256" )
-          gh release create "$TAG" "${flags[@]}" --repo "$GITHUB_REPOSITORY" \
-            "dist/Marc-$VERSION.dmg" "dist/Marc-$VERSION.dmg.sha256" dist/appcast.xml
+          assets=("dist/Marc-$VERSION.dmg" "dist/Marc-$VERSION.dmg.sha256")
+          [[ -f dist/appcast.xml ]] && assets+=(dist/appcast.xml)
+          gh release create "$TAG" "${flags[@]}" --title "$title" --repo "$GITHUB_REPOSITORY" "${assets[@]}"
           echo "Draft release created. Review it on GitHub, then publish it by hand." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Clean up signing material

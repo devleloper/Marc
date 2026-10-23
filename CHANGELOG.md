@@ -40,4 +40,5 @@ The first public version will be 0.1.0.
 - **Settings** for search engines, privacy, appearance, shortcuts, passwords, AI, extensions
   and profiles; onboarding; default-browser registration.
 - **Updates** through Sparkle in signed releases.
-- Unit, integration and UI tests; CI and release workflows.
+- Unit, integration and UI tests; CI and release workflows. Releases are ad hoc-signed previews
+  until Developer ID signing is configured.
