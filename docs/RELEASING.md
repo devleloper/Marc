@@ -14,6 +14,25 @@ If only some of the secrets are set, the workflow stops with an error rather tha
 Development builds (`make build`, CI) are ad-hoc signed and have updates turned off. None of the
 steps below are needed to build or contribute to Marc.
 
+## Disk image
+
+`scripts/make-dmg.sh` builds `Marc-<version>.dmg` with a designed window: the background from
+`design/render-dmg-background.swift` (rendered at 1× and 2× each time), the app and an Applications
+shortcut at fixed positions, and the app icon as the volume icon. It uses
+[dmgbuild](https://github.com/dmgbuild/dmgbuild), installed into a temporary virtual environment
+from the hash-pinned `packaging/dmg/requirements.txt`, so no Finder scripting is involved. CI
+builds a preview disk image on every push to catch problems early.
+
+## App icons
+
+`design/render-icons.swift` draws both icon styles from vector paths and writes every size into
+`Marc/Resources/Assets.xcassets`: the white Marc tile as `AppIcon` and the dark Aurora tile as an
+alternate offered in Settings. Run it after changing the artwork:
+
+```bash
+swift design/render-icons.swift Marc/Resources/Assets.xcassets
+```
+
 ## Preview builds
 
 Preview builds need no Apple Developer account, at the cost of a rougher experience for people
