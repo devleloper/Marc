@@ -77,10 +77,11 @@ final class MarcUITests: XCTestCase {
         // The newest tab is selected and listed first; drag the other one onto the page's right half.
         let rows = app.descendants(matching: .any).matching(identifier: "tabRow")
         XCTAssertTrue(rows.element(boundBy: 1).waitForExistence(timeout: 5))
-        let page = app.descendants(matching: .any)["webContent"]
-        XCTAssertTrue(page.waitForExistence(timeout: 5))
+        // WKWebView publishes its own accessibility tree, so aim at the page by position: the right
+        // part of the window is always the page.
+        let pageRightHalf = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.5))
         let start = rows.element(boundBy: 1).coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
-        start.click(forDuration: 0.6, thenDragTo: page.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.5)))
+        start.click(forDuration: 0.6, thenDragTo: pageRightHalf)
         let split = app.descendants(matching: .any).matching(NSPredicate(format: "label == 'Split view'")).firstMatch
         XCTAssertTrue(split.waitForExistence(timeout: 5), "Dropping a tab on the page opens a split")
     }
