@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "sidebar": {
+    "containers": [
+      { "global": {} },
+      {
+        "spaces": [
+          "space-work",
+          {
+            "id": "space-work",
+            "title": "Work",
+            "containerIDs": ["unpinned", "work-unpinned", "pinned", "work-pinned"],
+            "profile": { "default": true },
+            "customInfo": {
+              "iconType": { "emoji_v2": "💼" },
+              "windowTheme": {
+                "background": { "single": { "_0": {
+                  "contentOverBackgroundAppearance": "dark",
+                  "style": { "color": { "_0": { "blendedSingleColor": { "_0": {
+                    "color": { "red": 0.1, "green": 0.2, "blue": 0.4, "alpha": 1, "colorSpace": "sRGB" },
+                    "modifiers": { "noiseFactor": 30, "intensityFactor": 0.5, "overlay": "none" }
+                  } } } } }
+                } } },
+                "primaryColorPalette": { "shaded": { "red": 0.05, "green": 0.1, "blue": 0.2, "alpha": 1, "colorSpace": "sRGB" } }
+              }
+            }
+          },
+          "space-side",
+          {
+            "id": "space-side",
+            "title": "Side",
+            "containerIDs": ["unpinned", "side-unpinned", "pinned", "side-pinned"],
+            "profile": { "custom": { "_0": { "directoryBasename": "Profile 1" } } },
+            "customInfo": {}
+          }
+        ],
+        "items": [
+          "work-pinned", { "id": "work-pinned", "parentID": null, "childrenIds": ["folder-docs", "tab-mail", "split-1", "easel-1"], "title": null, "createdAt": 1, "data": { "itemContainer": { "containerType": { "spaceItems": { "_0": "space-work" } } } } },
+          "folder-docs", { "id": "folder-docs", "parentID": "work-pinned", "childrenIds": ["tab-spec", "tab-js"], "title": "Docs", "createdAt": 1, "data": { "list": {} } },
+          "tab-spec", { "id": "tab-spec", "parentID": "folder-docs", "childrenIds": [], "title": "The Spec", "createdAt": 1, "data": { "tab": { "savedURL": "https://example.com/spec", "savedTitle": "Specification – Example" } } },
+          "tab-js", { "id": "tab-js", "parentID": "folder-docs", "childrenIds": [], "title": null, "createdAt": 1, "data": { "tab": { "savedURL": "javascript:alert(1)", "savedTitle": "Bookmarklet" } } },
+          "tab-mail", { "id": "tab-mail", "parentID": "work-pinned", "childrenIds": [], "title": null, "createdAt": 1, "data": { "tab": { "savedURL": "https://mail.example.com/", "savedTitle": "Inbox (3)" } } },
+          "split-1", { "id": "split-1", "parentID": "work-pinned", "childrenIds": ["split-a", "split-b"], "title": null, "createdAt": 1, "data": { "splitView": { "layoutOrientation": "horizontal", "itemWidthFactors": [0.5, 0.5] } } },
+          "split-a", { "id": "split-a", "parentID": "split-1", "childrenIds": [], "title": null, "createdAt": 1, "data": { "tab": { "savedURL": "https://a.example.com/", "savedTitle": "A" } } },
+          "split-b", { "id": "split-b", "parentID": "split-1", "childrenIds": [], "title": null, "createdAt": 1, "data": { "tab": { "savedURL": "https://b.example.com/", "savedTitle": "B" } } },
+          "easel-1", { "id": "easel-1", "parentID": "work-pinned", "childrenIds": [], "title": "Board", "createdAt": 1, "data": { "easel": { "easelID": "x" } } },
+          "work-unpinned", { "id": "work-unpinned", "parentID": null, "childrenIds": ["tab-news"], "title": null, "createdAt": 1, "data": { "itemContainer": { "containerType": { "spaceItems": { "_0": "space-work" } } } } },
+          "tab-news", { "id": "tab-news", "parentID": "work-unpinned", "childrenIds": [], "title": null, "createdAt": 1, "data": { "tab": { "savedURL": "https://news.example.com/", "savedTitle": "News" } } },
+          "side-pinned", { "id": "side-pinned", "parentID": null, "childrenIds": ["tab-hobby"], "title": null, "createdAt": 1, "data": { "itemContainer": { "containerType": { "spaceItems": { "_0": "space-side" } } } } },
+          "tab-hobby", { "id": "tab-hobby", "parentID": "side-pinned", "childrenIds": [], "title": null, "createdAt": 1, "data": { "tab": { "savedURL": "https://hobby.example.com/", "savedTitle": "Hobby" } } },
+          "side-unpinned", { "id": "side-unpinned", "parentID": null, "childrenIds": [], "title": null, "createdAt": 1, "data": { "itemContainer": { "containerType": { "spaceItems": { "_0": "space-side" } } } } },
+          "favorites-default", { "id": "favorites-default", "parentID": null, "childrenIds": ["fav-gh"], "title": null, "createdAt": 1, "data": { "itemContainer": { "containerType": { "topApps": { "_0": { "default": true } } } } } },
+          "fav-gh", { "id": "fav-gh", "parentID": "favorites-default", "childrenIds": [], "title": null, "createdAt": 1, "data": { "tab": { "savedURL": "https://github.com/", "savedTitle": "GitHub" } } }
+        ],
+        "topAppsContainerIDs": [{ "default": true }, "favorites-default"]
+      }
+    ]
+  }
+}

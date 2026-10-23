@@ -1,0 +1,17 @@
+{
+  "checksum": "0",
+  "roots": {
+    "bookmark_bar": { "type": "folder", "name": "Bookmarks bar", "children": [
+      { "type": "url", "name": "Swift", "url": "https://swift.org/" },
+      { "type": "folder", "name": "Tools", "children": [
+        { "type": "url", "name": "GitHub", "url": "https://github.com/" },
+        { "type": "url", "name": "Local", "url": "file:///etc/hosts" }
+      ] }
+    ] },
+    "other": { "type": "folder", "name": "Other bookmarks", "children": [
+      { "type": "url", "name": "Example", "url": "https://example.com/" }
+    ] },
+    "synced": { "type": "folder", "name": "Mobile bookmarks", "children": [] }
+  },
+  "version": 1
+}
