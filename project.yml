@@ -1,0 +1,143 @@
+name: Marc
+
+options:
+  bundleIdPrefix: dev.devleloper
+  deploymentTarget:
+    macOS: "15.4"
+  xcodeVersion: "26.0"
+  developmentLanguage: en
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+packages:
+  MarcKit:
+    path: Packages/MarcKit
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: 2.10.0
+
+settings:
+  base:
+    MARKETING_VERSION: 0.1.0
+    CURRENT_PROJECT_VERSION: 1
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "15.4"
+    ENABLE_HARDENED_RUNTIME: YES
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    DEAD_CODE_STRIPPING: YES
+    ENABLE_MODULE_VERIFIER: YES
+    SWIFT_EMIT_LOC_STRINGS: YES
+    LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "-"
+    DEVELOPMENT_TEAM: ""
+    # Release builds read the Sparkle public key from the environment (see docs/RELEASING.md).
+    SPARKLE_PUBLIC_ED_KEY: ""
+  configs:
+    Release:
+      SWIFT_COMPILATION_MODE: wholemodule
+      SWIFT_OPTIMIZATION_LEVEL: -O
+
+targets:
+  Marc:
+    type: application
+    platform: macOS
+    sources:
+      - path: Marc
+        excludes:
+          - "**/*.md"
+    info:
+      path: Marc/Resources/Info.plist
+      properties:
+        CFBundleDisplayName: Marc
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSApplicationCategoryType: public.app-category.productivity
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        NSHumanReadableCopyright: Copyright © 2026 The Marc Authors. Licensed under the Apache License 2.0.
+        NSPrincipalClass: NSApplication
+        NSSupportsAutomaticTermination: false
+        NSSupportsSuddenTermination: false
+        LSFileQuarantineEnabled: true
+        NSCameraUsageDescription: Websites you allow can use the camera for video calls and other features.
+        NSMicrophoneUsageDescription: Websites you allow can use the microphone for calls and voice input.
+        NSLocationUsageDescription: Websites you allow can use your approximate location.
+        NSLocationWhenInUseUsageDescription: Websites you allow can use your approximate location.
+        SUFeedURL: https://github.com/devleloper/Marc/releases/latest/download/appcast.xml
+        SUPublicEDKey: $(SPARKLE_PUBLIC_ED_KEY)
+        SUEnableInstallerLauncherService: true
+        SUEnableAutomaticChecks: true
+        CFBundleURLTypes:
+          - CFBundleURLName: Web site URL
+            CFBundleTypeRole: Viewer
+            CFBundleURLSchemes: [http, https]
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: HTML document
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Default
+            LSItemContentTypes: [public.html, public.xhtml]
+          - CFBundleTypeName: Web archive
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Alternate
+            LSItemContentTypes: [com.apple.webarchive]
+    entitlements:
+      path: Marc/Resources/Marc.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+        com.apple.security.files.user-selected.read-write: true
+        com.apple.security.files.downloads.read-write: true
+        com.apple.security.files.bookmarks.app-scope: true
+        com.apple.security.device.camera: true
+        com.apple.security.device.audio-input: true
+        com.apple.security.personal-information.location: true
+        com.apple.security.print: true
+        com.apple.security.temporary-exception.mach-lookup.global-name:
+          - $(PRODUCT_BUNDLE_IDENTIFIER)-spks
+          - $(PRODUCT_BUNDLE_IDENTIFIER)-spki
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.devleloper.Marc
+        PRODUCT_NAME: Marc
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        COMBINE_HIDPI_IMAGES: YES
+    dependencies:
+      - package: MarcKit
+        product: MarcKit
+      - package: Sparkle
+        product: Sparkle
+
+  MarcUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources:
+      - path: MarcUITests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.devleloper.MarcUITests
+        TEST_TARGET_NAME: Marc
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: Marc
+
+schemes:
+  Marc:
+    build:
+      targets:
+        Marc: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      gatherCoverageData: true
+      coverageTargets:
+        - Marc
+      targets:
+        - MarcUITests
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
