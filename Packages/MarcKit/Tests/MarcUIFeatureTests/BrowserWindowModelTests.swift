@@ -47,8 +47,10 @@ struct BrowserWindowModelTests {
         let fixture = try await makeWindow()
         let window = fixture.window
         let session = fixture.session
-        let older = try #require(try window.open(#require(URL(string: "https://example.com/a")), placement: .newTab))
-        let newer = try #require(try window.open(#require(URL(string: "https://example.com/b")), placement: .newTab))
+        let first = try #require(URL(string: "https://example.com/a"))
+        let second = try #require(URL(string: "https://example.com/b"))
+        let older = try #require(window.open(first, placement: .newTab))
+        let newer = try #require(window.open(second, placement: .newTab))
         #expect(window.selectedItemID == newer)
 
         window.closeSelected()

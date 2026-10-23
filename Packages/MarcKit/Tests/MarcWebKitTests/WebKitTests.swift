@@ -89,7 +89,8 @@ struct BoostScriptTests {
         #expect(scripts.count == 2)
         #expect(scripts[0].injectionTime == .atDocumentStart)
         #expect(scripts[1].injectionTime == .atDocumentEnd)
-        #expect(scripts.allSatisfy(\.isForMainFrameOnly))
+        let mainFrameOnly = scripts.allSatisfy(\.isForMainFrameOnly)
+        #expect(mainFrameOnly)
     }
 }
 
@@ -114,9 +115,8 @@ struct WebTabIntegrationTests {
         let engine = makeEngine()
         let registry = TabRuntimeRegistry(engine: engine)
         let html = "<html><head><title>Marc Test</title></head><body><main>Hello from the page</main></body></html>"
-        let url =
-            try #require(try URL(string: "data:text/html;charset=utf-8," +
-                    #require(html.addingPercentEncoding(withAllowedCharacters: .alphanumerics))))
+        let encoded = try #require(html.addingPercentEncoding(withAllowedCharacters: .alphanumerics))
+        let url = try #require(URL(string: "data:text/html;charset=utf-8," + encoded))
         let tab = registry.tab(id: SidebarItem.ID(), url: nil, title: "", context: ProfileWebContext())
         tab.load(url, initiator: .user)
 

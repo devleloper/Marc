@@ -118,6 +118,9 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: dev.devleloper.MarcUITests
         TEST_TARGET_NAME: Marc
         GENERATE_INFOPLIST_FILE: YES
+        # Ad-hoc signatures carry no Team ID, so library validation in a hardened test runner
+        # would refuse to load the test bundle. The app itself keeps the hardened runtime.
+        ENABLE_HARDENED_RUNTIME: NO
     dependencies:
       - target: Marc
 
