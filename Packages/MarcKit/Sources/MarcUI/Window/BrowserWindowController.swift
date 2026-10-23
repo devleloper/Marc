@@ -12,6 +12,11 @@ public final class BrowserWindow: NSWindow {
         didSet { positionTrafficLights() }
     }
 
+    /// The vertical center of the traffic lights, matching the window's toolbar row.
+    var trafficLightCenterY = Metrics.Window.trafficLightCenterY {
+        didSet { positionTrafficLights() }
+    }
+
     override public func layoutIfNeeded() {
         super.layoutIfNeeded()
         positionTrafficLights()
@@ -27,7 +32,7 @@ public final class BrowserWindow: NSWindow {
             guard !isFullScreen else { continue }
             let origin = NSPoint(
                 x: Metrics.Window.trafficLightLeading + CGFloat(index) * 23,
-                y: container.frame.height - Metrics.Window.trafficLightCenterY - button.frame.height / 2,
+                y: container.frame.height - trafficLightCenterY - button.frame.height / 2,
             )
             if button.frame.origin != origin { button.setFrameOrigin(origin) }
         }
@@ -64,7 +69,12 @@ public final class BrowserWindowController: NSWindowController, NSWindowDelegate
         window.delegate = self
 
         let rootView = model.kind == .little ? AnyView(LittleWindowView(window: model)) : AnyView(BrowserRootView(window: model))
-        window.contentView = NSHostingView(rootView: rootView)
+        let hostingView = NSHostingView(rootView: rootView)
+        // The content extends under the transparent title bar; the toolbar rows reserve room for
+        // the traffic lights themselves.
+        hostingView.safeAreaRegions = []
+        window.contentView = hostingView
+        window.trafficLightCenterY = model.kind == .little ? Metrics.Window.littleToolbarHeight / 2 : Metrics.Window.trafficLightCenterY
         restoreFrame(of: window)
         model.nsWindow = window
         observeModel()

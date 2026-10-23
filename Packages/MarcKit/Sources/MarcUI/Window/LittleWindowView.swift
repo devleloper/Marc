@@ -31,7 +31,7 @@ struct LittleWindowView: View {
                     .accessibilityIdentifier("openInMarc")
             }
             .padding(.horizontal, 8)
-            .frame(height: 38)
+            .frame(height: Metrics.Window.littleToolbarHeight)
             .gesture(WindowDragGesture())
 
             ContentCard {
