@@ -21,6 +21,8 @@ public struct BrowserSettings: Hashable, Sendable, Codable {
     public var showsHoveredLinkStatus = true
     /// Look up the address of a hovered link or the selected Command Bar result ahead of time.
     public var preloadsLinkAddresses = true
+    /// Move a playing video into Picture in Picture when switching away from its tab, as Arc does.
+    public var opensPictureInPictureAutomatically = true
     /// Origins for which the user chose "Never Save" when offered to save a password.
     public var neverSavePasswordOrigins: [String] = []
 
@@ -48,6 +50,7 @@ public struct BrowserSettings: Hashable, Sendable, Codable {
         case hasCompletedOnboarding
         case showsHoveredLinkStatus
         case preloadsLinkAddresses
+        case opensPictureInPictureAutomatically
         case neverSavePasswordOrigins
     }
 
@@ -74,6 +77,7 @@ public struct BrowserSettings: Hashable, Sendable, Codable {
         hasCompletedOnboarding = value(.hasCompletedOnboarding, defaults.hasCompletedOnboarding)
         showsHoveredLinkStatus = value(.showsHoveredLinkStatus, defaults.showsHoveredLinkStatus)
         preloadsLinkAddresses = value(.preloadsLinkAddresses, defaults.preloadsLinkAddresses)
+        opensPictureInPictureAutomatically = value(.opensPictureInPictureAutomatically, defaults.opensPictureInPictureAutomatically)
         neverSavePasswordOrigins = value(.neverSavePasswordOrigins, defaults.neverSavePasswordOrigins)
     }
 }

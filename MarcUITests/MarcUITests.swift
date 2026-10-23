@@ -63,6 +63,29 @@ final class MarcUITests: XCTestCase {
     }
 
     @MainActor
+    func testDraggingATabOntoThePageOpensASplit() {
+        let app = launch()
+        defer { app.terminate() }
+        XCTAssertTrue(app.windows.firstMatch.waitForExistence(timeout: 10))
+        for _ in 0 ..< 2 {
+            app.typeKey("t", modifierFlags: .command)
+            let field = app.textFields["commandBarField"]
+            XCTAssertTrue(field.waitForExistence(timeout: 5))
+            field.typeText("about:blank\r")
+            XCTAssertTrue(field.waitForNonExistence(timeout: 5))
+        }
+        // The newest tab is selected and listed first; drag the other one onto the page's right half.
+        let rows = app.descendants(matching: .any).matching(identifier: "tabRow")
+        XCTAssertTrue(rows.element(boundBy: 1).waitForExistence(timeout: 5))
+        let page = app.descendants(matching: .any)["webContent"]
+        XCTAssertTrue(page.waitForExistence(timeout: 5))
+        let start = rows.element(boundBy: 1).coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        start.click(forDuration: 0.6, thenDragTo: page.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.5)))
+        let split = app.descendants(matching: .any).matching(NSPredicate(format: "label == 'Split view'")).firstMatch
+        XCTAssertTrue(split.waitForExistence(timeout: 5), "Dropping a tab on the page opens a split")
+    }
+
+    @MainActor
     func testChoosingTheAppIcon() {
         let app = launch()
         defer { app.terminate() }

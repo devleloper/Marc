@@ -13,7 +13,7 @@ alternative Marc implements.
 | Web notifications | The Notifications API is not exposed to third-party WebKit apps. | Not supported; documented in Settings. |
 | Muting a tab | No public page-mute API. | Media elements are muted from an isolated user script; audio produced by Web Audio may not be muted. |
 | Playing-audio indicator | No public "is playing audio" property. | Media events observed by an isolated script, cross-checked with `requestMediaPlaybackState()`. |
-| Picture in Picture from the sidebar | Entering PiP programmatically may require a user gesture inside the page. | The mini player offers PiP when WebKit accepts the request; otherwise it focuses the tab. |
+| Picture in Picture | WebKit has no public API to start Picture in Picture from the app, and sites can opt out. | Marc asks the page through its isolated script (with the user gesture WebKit grants app scripts): the standard `requestPictureInPicture()` first, then WebKit's `webkitSetPresentationMode`. Results are logged; a site that refuses stays inline. |
 | Password autofill | iCloud Keychain / Passwords app data is not available to third-party browsers. | Built-in Keychain-backed manager; third-party managers via web extensions. |
 | Passkeys / WebAuthn | Requires a restricted browser entitlement granted by Apple. | Not available in community builds; documented. |
 | Cookies import | Other browsers' cookies are encrypted per app and must not be read. | Import covers bookmarks, history and Arc's sidebar structure only. |

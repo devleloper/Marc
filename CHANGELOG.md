@@ -48,6 +48,9 @@ The first public version will be 0.1.0.
 
 ### Changed
 
+- Switching tabs is instant: the last few pages stay in the window, hidden, instead of being
+  rebuilt by WebKit each time you come back.
+- The sidebar shows and hides faster (0.2 s).
 - Buttons sink slightly when pressed and spring back, as in Arc.
 - The sidebar slides in and out smoothly, with the page following it and the traffic lights
   fading along.
@@ -56,8 +59,19 @@ The first public version will be 0.1.0.
   result in advance (Settings › Privacy › Faster loading) and no longer re-sends content-blocking
   rules on every navigation. A thin bar shows loading progress at the top of the page.
 
+### Added
+
+- **Translucency** for Space themes: a slider in the theme editor lets the desktop show through
+  the window's background; pages stay opaque.
+- **Automatic Picture in Picture**: a video playing in the tab you leave moves into Picture in
+  Picture and comes back when you return (Settings › General).
+- Clicking into a split pane makes it the active pane.
+
 ### Fixed
 
+- Dragging a tab onto a page opens a split again; the page used to take the drop.
+- Splitting while a favorite is selected opens the favorite's page in Today and splits it.
+- Picture in Picture falls back to WebKit's presentation modes when the standard API refuses.
 - Keyboard-focus rings no longer linger on buttons and fields after clicking them.
 - Drop indicators in the sidebar no longer stay on screen after a drag.
 - In full screen, the sidebar toolbar no longer leaves an empty gap for the hidden traffic lights.

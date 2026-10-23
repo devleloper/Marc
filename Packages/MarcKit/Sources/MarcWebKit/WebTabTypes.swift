@@ -22,6 +22,7 @@ public struct MediaState: Equatable, Sendable {
     public var isMuted = false
     public var hasVideo = false
     public var hasMedia = false
+    public var isInPictureInPicture = false
     public var title: String?
     public var artist: String?
     public var artworkURL: URL?
@@ -99,9 +100,12 @@ public protocol WebTabDelegate: AnyObject {
     func webTab(_ tab: WebTab, autofill event: AutofillEvent)
     func webTab(_ tab: WebTab, didPickElement selector: String)
     func webTabDidFinishPicking(_ tab: WebTab)
+    /// The user clicked into the page, for example to focus one pane of a split.
+    func webTabDidReceiveClick(_ tab: WebTab)
 }
 
 public extension WebTabDelegate {
+    func webTabDidReceiveClick(_ tab: WebTab) {}
     func webTab(_ tab: WebTab, createPopupTabWith configuration: WKWebViewConfiguration, for request: URLRequest) -> WebTab? { nil }
     func webTab(_ tab: WebTab, shouldPeekAt url: URL) -> Bool { false }
     func webTab(_ tab: WebTab, peekAt url: URL) {}

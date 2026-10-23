@@ -311,19 +311,6 @@ public final class WebTab: NSObject {
         webView?.pageZoom = zoom
     }
 
-    public func setMuted(_ muted: Bool) {
-        media.isMuted = muted
-        run("window.__marcSetMuted && window.__marcSetMuted(muted)", arguments: ["muted": muted])
-    }
-
-    public func togglePlayback() {
-        run("return window.__marcTogglePlayback ? window.__marcTogglePlayback() : 'none'")
-    }
-
-    public func togglePictureInPicture() {
-        run("return window.__marcPictureInPicture ? await window.__marcPictureInPicture() : false")
-    }
-
     /// Readable text of the page for AI features.
     public func pageContent(characterLimit: Int = 600_000) async -> PageContent? {
         guard let webView else { return nil }

@@ -75,6 +75,7 @@ private struct GeneralSettings: View {
                     ForEach(MemorySaverInterval.allCases, id: \.self) { Text($0.displayName).tag($0) }
                 }
                 Toggle("Show link address when hovering", isOn: settings.showsHoveredLinkStatus)
+                Toggle("Move playing videos to Picture in Picture when switching tabs", isOn: settings.opensPictureInPictureAutomatically)
             }
             Section("Websites") {
                 Picker("Website appearance", selection: settings.websiteAppearance) {

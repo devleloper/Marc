@@ -110,6 +110,15 @@ struct ThemeTests {
         #expect(abs(RGBColor.white.relativeLuminance - 1) < 0.0001)
     }
 
+    @Test func `themes without translucency decode as opaque and clamp the value`() throws {
+        let decoded = try JSONDecoder().decode(Theme.self, from: Data(#"{"colors":[{"red":0.5,"green":0.4,"blue":0.9}],"grain":0.2}"#.utf8))
+        #expect(decoded.translucency == 0)
+        #expect(Theme(colors: [.white], translucency: 1.7).translucency == 1)
+        var theme = Theme.default
+        theme.translucency = 0.6
+        #expect(try JSONDecoder().decode(Theme.self, from: JSONEncoder().encode(theme)) == theme)
+    }
+
     @Test func `themes keep at most three colors and decode empty colors safely`() throws {
         let theme = Theme(colors: Array(repeating: .white, count: 5))
         #expect(theme.colors.count == 3)

@@ -150,12 +150,31 @@ public final class BrowserWindowModel: Identifiable {
         let now = Date.now
         let previous = previousSelectedTab
         store.update { $0.touch(itemID, at: now) }
-        if item.kind == .tab, let tab = session?.runtimeTab(for: itemID, in: self) {
+        let current = item.kind == .tab ? session?.runtimeTab(for: itemID, in: self) : nil
+        if let tab = current {
             tab.markActive(at: now)
             tab.loadIfNeeded()
             if previous !== tab { session?.notifyExtensionsOfActivation(tab, previous: previous) }
             previousSelectedTab = tab
         }
+        updatePictureInPicture(leaving: previous, showing: current)
+    }
+
+    /// Arc-style automatic Picture in Picture: a video playing in the tab being left moves into
+    /// Picture in Picture, and comes back when its tab is shown again.
+    private func updatePictureInPicture(leaving previous: WebTab?, showing current: WebTab?) {
+        guard previous !== current else { return }
+        if let current, current.media.isInPictureInPicture { current.exitPictureInPicture() }
+        guard let previous, Self.shouldMoveToPictureInPicture(
+            previous.media,
+            isStillVisible: displayedLeafIDs.contains(previous.id),
+            isEnabled: session?.settings.settings.opensPictureInPictureAutomatically == true,
+        ) else { return }
+        previous.enterPictureInPicture()
+    }
+
+    static func shouldMoveToPictureInPicture(_ media: MediaState, isStillVisible: Bool, isEnabled: Bool) -> Bool {
+        isEnabled && media.isPlaying && media.hasVideo && !media.isInPictureInPicture && !isStillVisible
     }
 
     public func switchSpace(to spaceID: Space.ID) {
@@ -164,9 +183,13 @@ public final class BrowserWindowModel: Identifiable {
         spaceChangeIsForward = (order.firstIndex(of: spaceID) ?? 0) > (state.spaceID.flatMap(order.firstIndex(of:)) ?? 0)
         state.spaceID = spaceID
         isCreatingSpace = false
+        var current: WebTab?
         if let selected = selectedItemID, workspace.items[selected]?.kind == .tab {
-            session?.runtimeTab(for: selected, in: self)?.loadIfNeeded()
+            current = session?.runtimeTab(for: selected, in: self)
+            current?.loadIfNeeded()
         }
+        updatePictureInPicture(leaving: previousSelectedTab, showing: current)
+        if let current { previousSelectedTab = current }
     }
 
     /// Archives a Space's tabs and deletes it; windows showing it move to another Space.
@@ -233,7 +256,7 @@ public final class BrowserWindowModel: Identifiable {
             tab.load(url, initiator: initiator, transition: initiator == .user ? .typed : .link)
             return tab.id
         }
-        let anchor = selectedItemID
+        let anchor = placement == .splitWithSelection ? selectedItemID.flatMap(splittableAnchor) : selectedItemID
         guard let itemID = try? store.update({ try $0.openTab(TabContent(url: url), placement: .todayTop(spaceID)) }) else { return nil }
         let tab = session?.runtimeTab(for: itemID, in: self)
         if placement == .splitWithSelection, let anchor, workspace.items[anchor]?.kind == .tab {
@@ -258,6 +281,27 @@ public final class BrowserWindowModel: Identifiable {
 
     public func dismissCommandBar() {
         commandBar = nil
+    }
+
+    /// A tab that can anchor a split. Favorites can't hold splits, so a favorite's page opens as a
+    /// Today tab first and that tab anchors the split.
+    func splittableAnchor(_ id: SidebarItem.ID) -> SidebarItem.ID? {
+        guard let item = workspace.items[id], let content = item.tab else { return nil }
+        guard item.container.section == .favorites else { return id }
+        guard let spaceID = state.spaceID,
+              let copy = try? store.update({ try $0.openTab(
+                  TabContent(url: content.url, title: content.title, faviconURL: content.faviconURL),
+                  placement: .todayTop(spaceID),
+              ) })
+        else { return nil }
+        if let url = content.url { runtimeTab(for: copy)?.load(url, initiator: .user, transition: .link) }
+        return copy
+    }
+
+    /// Clicking into a split pane makes it the selected pane, so pane commands act on it.
+    func focusPane(_ tabID: SidebarItem.ID) {
+        guard selectedItemID != tabID, let split = selectedSplit?.split, split.layout.panes.contains(tabID) else { return }
+        select(tabID)
     }
 
     /// Called on every drop update over the sidebar; when updates stop, drop highlights reset.
