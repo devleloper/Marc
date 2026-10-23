@@ -144,6 +144,7 @@ struct BrowserSettingsTests {
         #expect(settings.archiveInterval == .twelveHours)
         #expect(settings.showsSearchSuggestions)
         #expect(settings.appIcon == .marc)
+        #expect(settings.preloadsLinkAddresses)
     }
 
     @Test func `unknown app icon falls back to Marc`() throws {

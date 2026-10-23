@@ -207,6 +207,15 @@ private struct PrivacySettings: View {
                 .disabled(!session.settings.settings.isContentBlockingEnabled)
                 Text("Filter lists from easylist.to are downloaded and converted on this Mac.").font(.footnote).foregroundStyle(.secondary)
             }
+            Section("Faster loading") {
+                Toggle("Look up link addresses in advance", isOn: settings.preloadsLinkAddresses)
+                Text("""
+                When you point at a link or select a result in the Command Bar, Marc looks up the site's address \
+                so the page starts loading sooner. Nothing is loaded until you open it.
+                """)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            }
             Section("Browsing data") {
                 Picker("Clear", selection: $clearRange) {
                     Text("Last hour").tag(0)

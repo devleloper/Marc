@@ -67,6 +67,42 @@ struct PaneContent: View {
     }
 }
 
+/// A thin bar along the top of the page while it loads, so progress is visible even with the
+/// sidebar hidden. It eases forward with WebKit's estimate, resets without sliding backward when a
+/// new load starts, and fades out once the page is done.
+private struct LoadingBar: View {
+    let tab: WebTab
+    @State private var progress: Double = 0
+
+    var body: some View {
+        GeometryReader { proxy in
+            Capsule()
+                .fill(LinearGradient(
+                    colors: [BrandColors.violet, BrandColors.sky, BrandColors.teal],
+                    startPoint: .leading,
+                    endPoint: .trailing,
+                ))
+                .frame(width: max(proxy.size.width * progress, 24), height: 2.5)
+                .opacity(tab.isLoading ? 1 : 0)
+                .animation(.easeOut(duration: tab.isLoading ? 0.15 : 0.4), value: tab.isLoading)
+        }
+        .frame(height: 2.5)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+        .onAppear { progress = tab.estimatedProgress }
+        .onChange(of: tab.estimatedProgress) { old, new in
+            if new < old {
+                var reset = Transaction()
+                reset.disablesAnimations = true
+                withTransaction(reset) { progress = new }
+            } else {
+                withAnimation(.easeOut(duration: 0.25)) { progress = new }
+            }
+        }
+    }
+}
+
 private struct WebPane: View {
     @Bindable var window: BrowserWindowModel
     let tab: WebTab
@@ -81,6 +117,7 @@ private struct WebPane: View {
                     .opacity(tab.failure == nil ? 1 : 0)
                     .accessibilityLabel(tab.title.isEmpty ? "Web content" : tab.title)
                     .accessibilityIdentifier("webContent")
+                LoadingBar(tab: tab)
             }
             if let failure = tab.failure {
                 FailureView(tab: tab, failure: failure)
@@ -150,7 +187,8 @@ struct EmptyContentView: View {
                     .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(.secondary)
                 Button("New Tab") { window.showCommandBar(.newTab) }
-                    .buttonStyle(.borderless)
+                    .buttonStyle(.pressable)
+                    .foregroundStyle(.tint)
             }
         }
         .accessibilityElement(children: .contain)

@@ -93,6 +93,7 @@ extension WebTab: WKScriptMessageHandler {
         switch type {
         case "hover":
             hoveredLink = (body["href"] as? String).flatMap(URL.init(string:))
+            if let hoveredLink { environment.preresolve(hoveredLink) }
         case "icons":
             let icons = (body["icons"] as? [[String: Any]] ?? []).compactMap(PageIcon.init)
             if let best = PageIcon.best(in: icons), best.url != faviconURL {

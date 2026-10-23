@@ -51,7 +51,7 @@ public struct OnboardingView: View {
                     Spacer()
                     if step != .welcome {
                         Button("Back") { move(by: -1) }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.pressable)
                             .foregroundStyle(palette.secondaryText)
                     }
                     Button(step == .defaultBrowser ? "Start Browsing" : "Continue") { advance() }
@@ -102,7 +102,7 @@ public struct OnboardingView: View {
                                 .frame(width: 44, height: 44)
                                 .overlay(Circle().strokeBorder(.white.opacity(preset == theme ? 1 : 0), lineWidth: 3))
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.pressable)
                     }
                 }
             }

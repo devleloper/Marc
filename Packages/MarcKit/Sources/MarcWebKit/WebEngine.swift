@@ -9,6 +9,7 @@ import WebKit
 public final class WebEngine {
     public let contentBlocker: ContentBlocker
     public let favicons: FaviconLoader
+    @ObservationIgnored public let preresolver = HostPreresolver()
     public private(set) var boosts: [Boost] = []
     public var isContentBlockingEnabled = true
 
@@ -58,6 +59,7 @@ public final class WebEngine {
             isContentBlockingEnabled: { [weak self] in self?.isContentBlockingEnabled ?? false },
             boosts: { [weak self] host in self?.boosts(for: host) ?? [] },
             favicons: favicons,
+            preresolve: { [weak self] url in self?.preresolver.preresolve(url) },
         )
     }
 

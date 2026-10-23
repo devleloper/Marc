@@ -81,7 +81,7 @@ private struct SpaceIconButton: View {
                 .frame(width: isCompact ? 21 : 24, height: 34)
                 .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
         .onHover { isHovered = $0 }
         .help(space.name)
         .accessibilityLabel(space.name)
@@ -91,6 +91,7 @@ private struct SpaceIconButton: View {
             destination: SidebarDestination(container: .today(space.id), index: 0),
             isTargeted: $isDropTargeted,
         ))
+        .onChange(of: window.dropHighlightResets) { isDropTargeted = false }
         .contextMenu {
             Button("Rename Space") {
                 window.switchSpace(to: space.id)
@@ -171,7 +172,7 @@ private struct PlusMenu: View {
                 .font(.system(size: 15, weight: .medium))
         }
         .menuStyle(.button)
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
         .menuIndicator(.hidden)
         .frame(width: Metrics.Sidebar.toolbarButtonSize, height: Metrics.Sidebar.toolbarButtonSize)
         .foregroundStyle(window.palette.icon)

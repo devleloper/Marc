@@ -18,7 +18,7 @@ struct ThemeEditor: View {
                             .frame(width: 24, height: 24)
                             .overlay(Circle().strokeBorder(.white.opacity(preset == theme ? 0.9 : 0), lineWidth: 2))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable)
                     .accessibilityLabel("Theme preset")
                 }
             }
@@ -43,7 +43,7 @@ struct ThemeEditor: View {
                 } label: { Label("Remove", systemImage: "minus.circle") }
                     .disabled(theme.colors.count <= 1)
             }
-            .buttonStyle(.borderless)
+            .buttonStyle(.pressable)
             .font(.system(size: 12))
 
             Picker("Appearance", selection: $theme.appearance) {

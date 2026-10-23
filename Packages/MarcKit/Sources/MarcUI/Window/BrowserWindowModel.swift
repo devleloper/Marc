@@ -48,6 +48,12 @@ public final class BrowserWindowModel: Identifiable {
     public var boostEditor: BoostEditorModel?
     public var findFocusRequest = 0
     public var siteControlItemID: SidebarItem.ID?
+    /// Set by the window controller; full screen hides the traffic lights, so the toolbar moves left.
+    public var isFullScreen = false
+    /// Incremented once a drag over the sidebar has gone quiet, so drop highlights reset even when
+    /// SwiftUI doesn't deliver `dropExited`, which on macOS sometimes doesn't happen.
+    public private(set) var dropHighlightResets = 0
+    @ObservationIgnored private var dropWatchdog: Task<Void, Never>?
     public var renamingSpaceID: Space.ID?
     public var isShowingImport = false
     public var sourceViewer: SourceViewerModel?
@@ -252,6 +258,16 @@ public final class BrowserWindowModel: Identifiable {
 
     public func dismissCommandBar() {
         commandBar = nil
+    }
+
+    /// Called on every drop update over the sidebar; when updates stop, drop highlights reset.
+    func noteDropActivity(quietPeriod: Duration = .milliseconds(1200)) {
+        dropWatchdog?.cancel()
+        dropWatchdog = Task { [weak self] in
+            try? await Task.sleep(for: quietPeriod)
+            guard !Task.isCancelled else { return }
+            self?.dropHighlightResets += 1
+        }
     }
 
     public func toggleSidebar() {

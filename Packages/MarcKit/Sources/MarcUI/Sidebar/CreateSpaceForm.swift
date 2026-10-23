@@ -35,8 +35,8 @@ struct CreateSpaceForm: View {
                 Button { isPickingIcon = true } label: {
                     SpaceIconView(icon: icon).frame(width: 20, height: 20)
                 }
-                .buttonStyle(.plain)
-                .popover(isPresented: $isPickingIcon) { IconPicker(selection: $icon) }
+                .buttonStyle(.pressable)
+                .popover(isPresented: $isPickingIcon) { IconPicker(selection: $icon).focusEffectDisabled() }
                 TextField("Space name…", text: $name)
                     .textFieldStyle(.plain)
                     .font(Typography.addressHost)
@@ -69,10 +69,10 @@ struct CreateSpaceForm: View {
                 }
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.pressableRow)
             .formRow(palette)
             .popover(isPresented: $isEditingTheme, arrowEdge: .trailing) {
-                ThemeEditor(theme: $theme)
+                ThemeEditor(theme: $theme).focusEffectDisabled()
             }
 
             Spacer()
@@ -83,7 +83,7 @@ struct CreateSpaceForm: View {
                 .keyboardShortcut(.defaultAction)
                 .accessibilityIdentifier("createSpaceButton")
             Button("Cancel") { window.isCreatingSpace = false }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable)
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(palette.secondaryText)
                 .keyboardShortcut(.cancelAction)
@@ -162,6 +162,6 @@ struct IconPicker: View {
                 .frame(width: 28, height: 28)
                 .background(RoundedRectangle(cornerRadius: 6).fill(selection == icon ? Color.accentColor.opacity(0.25) : .clear))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
     }
 }

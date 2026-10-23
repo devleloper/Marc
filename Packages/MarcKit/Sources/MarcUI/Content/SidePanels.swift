@@ -22,7 +22,7 @@ struct AssistantPanel: View {
                 Button { window.assistant?.cancel()
                     window.assistant = nil
                 } label: { Image(systemName: "xmark") }
-                    .buttonStyle(.borderless)
+                    .buttonStyle(.pressable)
                     .help("Close")
             }
             if let provider = assistant.providerName {
@@ -69,7 +69,7 @@ struct AssistantPanel: View {
                         .focused($questionFocused)
                         .onSubmit { assistant.ask() }
                     Button { assistant.ask() } label: { Image(systemName: "arrow.up.circle.fill").font(.system(size: 20)) }
-                        .buttonStyle(.borderless)
+                        .buttonStyle(.pressable)
                         .disabled(assistant.draftQuestion.trimmingCharacters(in: .whitespaces).isEmpty || assistant.isRunning)
                 }
                 .focusOnAppear($questionFocused)
@@ -112,7 +112,7 @@ struct BoostEditorPanel: View {
                 Image(systemName: "paintbrush.pointed.fill").foregroundStyle(.tint)
                 Text("Boost").font(.system(size: 15, weight: .bold))
                 Spacer()
-                Button { editor.discard() } label: { Image(systemName: "xmark") }.buttonStyle(.borderless)
+                Button { editor.discard() } label: { Image(systemName: "xmark") }.buttonStyle(.pressable)
             }
             .padding(14)
             Form {
@@ -160,7 +160,7 @@ struct BoostEditorPanel: View {
                             Text(selector).font(.system(size: 11, design: .monospaced)).lineLimit(1).truncationMode(.middle)
                             Spacer()
                             Button { editor.removeZappedSelector(selector) } label: { Image(systemName: "minus.circle") }
-                                .buttonStyle(.borderless)
+                                .buttonStyle(.pressable)
                         }
                     }
                 }

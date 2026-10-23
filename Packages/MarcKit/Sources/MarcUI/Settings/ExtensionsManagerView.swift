@@ -1,5 +1,6 @@
 import AppKit
 import MarcCore
+import MarcDesignSystem
 import MarcWebKit
 import SwiftUI
 import UniformTypeIdentifiers
@@ -126,7 +127,7 @@ struct ExtensionActionsRow: View {
                             .frame(width: 34, height: 34)
                             .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(.quaternary))
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.pressable)
                         .disabled(!entry.action.isEnabled)
                         .help(entry.action.label)
                     }
@@ -134,7 +135,7 @@ struct ExtensionActionsRow: View {
                         Image(systemName: "plus").frame(width: 34, height: 34)
                             .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(.quaternary))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable)
                     .help("Manage Extensions")
                 }
                 .id(host.actionsRevision)

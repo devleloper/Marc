@@ -58,7 +58,7 @@ struct SiteControlsPopover: View {
                 Text("\(Int((tab.zoom * 100).rounded()))%").font(.system(size: 12).monospacedDigit()).frame(width: 44)
                 Button { window.adjustZoom(.in) } label: { Image(systemName: "plus") }
             }
-            .buttonStyle(.borderless)
+            .buttonStyle(.pressable)
 
             Divider()
 
@@ -93,7 +93,7 @@ struct SiteControlsPopover: View {
                 .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(.quaternary))
                 .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
         .help(title)
         .accessibilityLabel(title)
     }
