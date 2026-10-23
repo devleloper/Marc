@@ -14,7 +14,7 @@ Status legend: **v1** — in scope for the first release · **later** — planne
 | --- | --- | --- | --- |
 | Hidden title bar, full-size content | Traffic lights at x=12, centered ~24 pt from the top; no window title | `BrowserWindow` with transparent titlebar, repositioned standard buttons | v1 |
 | Sidebar toolbar | Sidebar toggle, back, forward, reload: 32×32 pt hit areas at y=7 | Same layout, SF Symbols | v1 |
-| Content "card" | Web content inset 10 pt top/right/bottom, flush with the 250 pt sidebar on the left; continuous corner radius ≈ 7 pt; hairline highlight on window top edge | `ContentCard` design-system component | v1 |
+| Content "card" | Web content inset 10 pt top/right/bottom, flush with the 250 pt sidebar on the left; circular corner radius 6 pt (fitted to the anti-aliased edge profile); hairline highlight on window top edge. Sidebar toolbar shares the traffic lights' row (center y = 23 pt); address field top at y ≈ 47 pt | `ContentCard` design-system component | v1 |
 | Space theme behind chrome | Window background is the Space gradient (e.g. `#0E0D20` → `#1B0D20`) with soft color glows | `ThemeBackground` (gradient + optional grain) | v1 |
 | Multiple windows, each showing one Space | `New Window ⌘N`, `Close Window ⇧⌘W` | `WindowCoordinator` | v1 |
 | Blank Window `⌃⌘N` | Window not bound to a Space ("This Window" section) | Ephemeral window-scoped tab list | v1 |
@@ -59,7 +59,7 @@ Status legend: **v1** — in scope for the first release · **later** — planne
 
 | Arc behavior | Observed details | Marc | Status |
 | --- | --- | --- | --- |
-| Command Bar `⌘T` / `⌘L` | Centered panel ≈ 764 pt wide; 20 pt query field; 50 pt result rows; selected row uses the accent fill; info button | `CommandBar` | v1 |
+| Command Bar `⌘T` / `⌘L` | Centered panel 765 pt wide, opaque `#30302F` in dark appearance, circular 12 pt corners with a black outer and a 20 % white inner hairline; ≈ 63 pt field row (≈ 18 pt text, icon centered 31 pt from the edge) above a 0.5 pt divider; results inset 6/9/10 pt with 46 pt rows on a 50 pt pitch; selected row `#474DD4`; info button | `CommandBar` | v1 |
 | Results | URL navigation, search, open tabs (switch), history, commands, search suggestions | `CommandBarRanker` (pure, frecency-based) | v1 |
 | Site search with Tab | e.g. type a site then Tab to search it | `SearchEngineShortcut` | v1 |
 | Back/forward `⌘[` `⌘]`, reload `⌘R`, force reload `⇧⌘R`, stop `⌘.` | — | `WebTab` commands | v1 |
