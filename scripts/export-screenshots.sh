@@ -31,3 +31,24 @@ for test in json.loads((work / "manifest.json").read_text()):
 if exported == 0:
     sys.exit("No screenshot attachments found; was MARC_SCREENSHOTS set?")
 PYTHON
+
+# Retina screenshots are several megabytes each. With Pillow available, reduce them to 256-color
+# PNGs (about 200–300 KB, visually the same) so the repository stays small.
+if python3 -I -c "import PIL" 2> /dev/null; then
+  python3 -I - "$destination" <<'PYTHON'
+import pathlib
+import sys
+
+from PIL import Image
+
+for path in sorted(pathlib.Path(sys.argv[1]).glob("*.png")):
+    with Image.open(path) as image:
+        reduced = image.convert("RGBA").quantize(
+            colors=256, method=Image.Quantize.FASTOCTREE, dither=Image.Dither.FLOYDSTEINBERG
+        )
+    reduced.save(path, optimize=True)
+    print(f"{path}: {path.stat().st_size // 1024} KB")
+PYTHON
+else
+  echo "Pillow is not installed; leaving full-size PNGs (pip3 install pillow to reduce them)."
+fi
