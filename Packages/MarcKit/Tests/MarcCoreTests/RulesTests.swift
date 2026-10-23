@@ -143,12 +143,28 @@ struct BrowserSettingsTests {
         #expect(settings.searchEngine == .kagi)
         #expect(settings.archiveInterval == .twelveHours)
         #expect(settings.showsSearchSuggestions)
+        #expect(settings.appIcon == .marc)
+    }
+
+    @Test func `unknown app icon falls back to Marc`() throws {
+        let settings = try JSONDecoder().decode(BrowserSettings.self, from: Data(#"{"appIcon":"neon"}"#.utf8))
+        #expect(settings.appIcon == .marc)
+    }
+
+    @Test(arguments: [
+        (AppIconStyle.marc, false, String?.none), (.marc, true, nil),
+        (.aurora, false, "AppIconAurora"), (.aurora, true, "AppIconAurora"),
+        (.matchAppearance, false, nil), (.matchAppearance, true, "AppIconAurora"),
+    ])
+    func `app icon follows the style and appearance`(style: AppIconStyle, isDark: Bool, expected: String?) {
+        #expect(style.imageName(isDarkAppearance: isDark) == expected)
     }
 
     @Test func `round trips`() throws {
         var settings = BrowserSettings()
         settings.archiveInterval = .week
         settings.aiProvider = .claude
+        settings.appIcon = .matchAppearance
         let data = try JSONEncoder().encode(settings)
         #expect(try JSONDecoder().decode(BrowserSettings.self, from: data) == settings)
     }

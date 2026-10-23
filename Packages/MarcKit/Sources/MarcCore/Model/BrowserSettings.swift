@@ -10,6 +10,7 @@ public struct BrowserSettings: Hashable, Sendable, Codable {
     public var opensExternalLinksInLittleWindow = true
     public var isContentBlockingEnabled = true
     public var websiteAppearance = WebsiteAppearance.automatic
+    public var appIcon = AppIconStyle.marc
     public var offersToSavePasswords = true
     public var requiresAuthenticationForPasswords = true
     public var aiProvider = AIProviderKind.automatic
@@ -35,6 +36,7 @@ public struct BrowserSettings: Hashable, Sendable, Codable {
         case opensExternalLinksInLittleWindow
         case isContentBlockingEnabled
         case websiteAppearance
+        case appIcon
         case offersToSavePasswords
         case requiresAuthenticationForPasswords
         case aiProvider
@@ -59,6 +61,7 @@ public struct BrowserSettings: Hashable, Sendable, Codable {
         opensExternalLinksInLittleWindow = value(.opensExternalLinksInLittleWindow, defaults.opensExternalLinksInLittleWindow)
         isContentBlockingEnabled = value(.isContentBlockingEnabled, defaults.isContentBlockingEnabled)
         websiteAppearance = value(.websiteAppearance, defaults.websiteAppearance)
+        appIcon = value(.appIcon, defaults.appIcon)
         offersToSavePasswords = value(.offersToSavePasswords, defaults.offersToSavePasswords)
         requiresAuthenticationForPasswords = value(.requiresAuthenticationForPasswords, defaults.requiresAuthenticationForPasswords)
         aiProvider = value(.aiProvider, defaults.aiProvider)
@@ -68,6 +71,37 @@ public struct BrowserSettings: Hashable, Sendable, Codable {
         hasCompletedOnboarding = value(.hasCompletedOnboarding, defaults.hasCompletedOnboarding)
         showsHoveredLinkStatus = value(.showsHoveredLinkStatus, defaults.showsHoveredLinkStatus)
         neverSavePasswordOrigins = value(.neverSavePasswordOrigins, defaults.neverSavePasswordOrigins)
+    }
+}
+
+/// The icon Marc shows in the Dock and the app switcher while it runs.
+public enum AppIconStyle: String, Hashable, Sendable, Codable, CaseIterable {
+    /// The white tile: the app's own icon.
+    case marc
+    /// The deep indigo tile.
+    case aurora
+    /// Marc in light appearance, Aurora in dark appearance.
+    case matchAppearance
+
+    /// Asset names of the two icon images.
+    public static let marcImageName = "AppIconMarc"
+    public static let auroraImageName = "AppIconAurora"
+
+    public var displayName: String {
+        switch self {
+        case .marc: "Marc"
+        case .aurora: "Aurora"
+        case .matchAppearance: "Match Appearance"
+        }
+    }
+
+    /// The image to show for the current appearance, or `nil` for the app's own icon.
+    public func imageName(isDarkAppearance: Bool) -> String? {
+        switch self {
+        case .marc: nil
+        case .aurora: Self.auroraImageName
+        case .matchAppearance: isDarkAppearance ? Self.auroraImageName : nil
+        }
     }
 }
 
