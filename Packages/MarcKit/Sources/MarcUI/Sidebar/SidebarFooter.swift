@@ -106,18 +106,18 @@ private struct SpaceIconButton: View {
         switch space.icon {
         case let .emoji(emoji):
             Text(emoji)
-                .font(.system(size: isCurrent ? 13 : 11))
+                .font(.system(size: 14))
                 .opacity(isCurrent ? 1 : 0.6)
                 .scaleEffect(isDropTargeted ? 1.3 : 1)
         case let .symbol(symbol):
             if symbol == "circle.fill" {
                 Circle()
                     .fill(palette.primaryText.opacity(opacity))
-                    .frame(width: isCurrent ? 7 : 5, height: isCurrent ? 7 : 5)
+                    .frame(width: 8, height: 8)
                     .scaleEffect(isDropTargeted ? 1.6 : 1)
             } else {
                 Image(systemName: symbol)
-                    .font(.system(size: isCurrent ? 12 : 10, weight: .semibold))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(palette.primaryText.opacity(opacity))
                     .scaleEffect(isDropTargeted ? 1.3 : 1)
             }

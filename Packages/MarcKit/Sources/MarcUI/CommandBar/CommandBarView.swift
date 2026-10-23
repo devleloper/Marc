@@ -14,14 +14,14 @@ struct CommandBarView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 10) {
+            HStack(spacing: 12) {
                 if let site = model.siteSearch {
                     Text(site.name)
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
-                        .background(Capsule().fill(Color(red: 0.27, green: 0.28, blue: 0.82)))
+                        .background(Capsule().fill(CommandBarColors.selection))
                 } else {
                     Image(systemName: "magnifyingglass")
                         .font(.system(size: 15, weight: .medium))
@@ -45,14 +45,17 @@ struct CommandBarView: View {
                     .onExitCommand { window.dismissCommandBar() }
                     .accessibilityIdentifier("commandBarField")
             }
-            .padding(.horizontal, 18)
+            .padding(.leading, Metrics.CommandBar.fieldLeading)
+            .padding(.trailing, 18)
             .frame(height: Metrics.CommandBar.fieldHeight)
 
             if !model.results.isEmpty {
-                Divider().opacity(0.4)
+                Rectangle()
+                    .fill(palette.isDark ? Color.white.opacity(0.1) : Color.black.opacity(0.08))
+                    .frame(height: 0.5)
                 ScrollViewReader { proxy in
                     ScrollView {
-                        VStack(spacing: 0) {
+                        VStack(spacing: Metrics.CommandBar.rowSpacing) {
                             ForEach(Array(model.results.enumerated()), id: \.element.id) { index, result in
                                 CommandBarRow(result: result, isSelected: index == model.selectedIndex, window: window)
                                     .id(result.id)
@@ -60,9 +63,9 @@ struct CommandBarView: View {
                                     .onHover { if $0 { model.selectedIndex = index } }
                             }
                         }
-                        .padding(8)
+                        .padding(Metrics.CommandBar.resultsInsets)
                     }
-                    .frame(maxHeight: Metrics.CommandBar.rowHeight * CGFloat(Metrics.CommandBar.maximumVisibleRows) + 16)
+                    .frame(maxHeight: maximumResultsHeight)
                     .fixedSize(horizontal: false, vertical: true)
                     .onChange(of: model.selectedIndex) { _, index in
                         if model.results.indices.contains(index) { proxy.scrollTo(model.results[index].id) }
@@ -71,17 +74,26 @@ struct CommandBarView: View {
             }
         }
         .frame(width: Metrics.CommandBar.width)
-        .background(Color(nsColor: .windowBackgroundColor).opacity(0.97))
-        .clipShape(RoundedRectangle(cornerRadius: Metrics.CommandBar.cornerRadius, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: Metrics.CommandBar.cornerRadius, style: .continuous).strokeBorder(
-            .primary.opacity(0.1),
-            lineWidth: 0.5,
-        ))
+        .background(palette.isDark ? CommandBarColors.darkBackground : CommandBarColors.lightBackground)
+        .clipShape(shape)
+        // Arc draws a dark outer hairline and a light inner one.
+        .overlay(shape.inset(by: 0.5).strokeBorder(.white.opacity(palette.isDark ? 0.2 : 0.6), lineWidth: 0.5))
+        .overlay(shape.strokeBorder(.black.opacity(palette.isDark ? 0.9 : 0.15), lineWidth: 0.5))
         .shadow(color: .black.opacity(0.35), radius: 40, y: 18)
         .focusOnAppear($isFocused)
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Command Bar")
         .accessibilityIdentifier("commandBar")
+    }
+
+    private var shape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: Metrics.CommandBar.cornerRadius, style: .circular)
+    }
+
+    private var maximumResultsHeight: CGFloat {
+        let rows = CGFloat(Metrics.CommandBar.maximumVisibleRows)
+        let insets = Metrics.CommandBar.resultsInsets
+        return rows * Metrics.CommandBar.rowHeight + (rows - 1) * Metrics.CommandBar.rowSpacing + insets.top + insets.bottom
     }
 
     private var placeholder: String {
@@ -123,7 +135,7 @@ private struct CommandBarRow: View {
         .frame(height: Metrics.CommandBar.rowHeight)
         .background(
             RoundedRectangle(cornerRadius: Metrics.CommandBar.rowCornerRadius, style: .continuous)
-                .fill(isSelected ? Color(red: 0.27, green: 0.28, blue: 0.82) : .clear),
+                .fill(isSelected ? CommandBarColors.selection : .clear),
         )
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)

@@ -232,9 +232,9 @@ private struct SplitDropHighlight: View {
 
     var body: some View {
         GeometryReader { proxy in
-            RoundedRectangle(cornerRadius: Metrics.Content.cornerRadius, style: .continuous)
+            RoundedRectangle(cornerRadius: Metrics.Content.cornerRadius, style: Metrics.Content.cornerStyle)
                 .fill(Color.accentColor.opacity(0.18))
-                .overlay(RoundedRectangle(cornerRadius: Metrics.Content.cornerRadius, style: .continuous).strokeBorder(
+                .overlay(RoundedRectangle(cornerRadius: Metrics.Content.cornerRadius, style: Metrics.Content.cornerStyle).strokeBorder(
                     Color.accentColor,
                     lineWidth: 2,
                 ))

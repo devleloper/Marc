@@ -125,7 +125,7 @@ private struct PaneHeader: View {
         .clipShape(UnevenRoundedRectangle(
             topLeadingRadius: Metrics.Content.cornerRadius,
             topTrailingRadius: Metrics.Content.cornerRadius,
-            style: .continuous,
+            style: Metrics.Content.cornerStyle,
         ))
         .contentShape(Rectangle())
         .onHover { hovering in withAnimation(Motion.hover) { isHovered = hovering } }

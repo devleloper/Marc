@@ -150,11 +150,9 @@ struct TodayDivider: View {
                 .frame(height: 1)
             if isSidebarHovered, !isEmpty {
                 Button(action: clear) {
-                    HStack(spacing: 2) {
-                        Image(systemName: "arrow.down").font(.system(size: 9, weight: .bold))
-                        Text("Clear").font(Typography.caption)
-                    }
-                    .foregroundStyle(isClearHovered ? palette.secondaryText : palette.tertiaryText)
+                    Text("Clear")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(isClearHovered ? palette.secondaryText : palette.tertiaryText)
                 }
                 .buttonStyle(.plain)
                 .onHover { isClearHovered = $0 }

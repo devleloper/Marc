@@ -78,7 +78,7 @@ struct AssistantPanel: View {
         .padding(14)
         .frame(maxHeight: .infinity, alignment: .top)
         .background(Color(nsColor: .windowBackgroundColor))
-        .clipShape(RoundedRectangle(cornerRadius: Metrics.Content.cornerRadius, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: Metrics.Content.cornerRadius, style: Metrics.Content.cornerStyle))
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Page assistant")
     }
@@ -188,7 +188,7 @@ struct BoostEditorPanel: View {
             .padding(14)
         }
         .background(Color(nsColor: .windowBackgroundColor))
-        .clipShape(RoundedRectangle(cornerRadius: Metrics.Content.cornerRadius, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: Metrics.Content.cornerRadius, style: Metrics.Content.cornerStyle))
     }
 
     private static let fontFamilies: [String] = {
