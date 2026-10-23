@@ -9,6 +9,8 @@ public enum Metrics {
         /// Traffic lights sit 12 pt from the left edge, vertically centered on the toolbar row.
         public static let trafficLightLeading: CGFloat = 12
         public static let trafficLightCenterY: CGFloat = 23
+        /// The Little window's single bar, which also holds its traffic lights.
+        public static let littleToolbarHeight: CGFloat = 38
     }
 
     public enum Sidebar {
@@ -37,14 +39,21 @@ public enum Metrics {
 
     public enum Content {
         public static let inset: CGFloat = 10
-        public static let cornerRadius: CGFloat = 7
+        /// Arc's page card uses circular (not continuous) 6 pt corners.
+        public static let cornerRadius: CGFloat = 6
+        public static let cornerStyle: RoundedCornerStyle = .circular
         public static let splitSpacing: CGFloat = 8
     }
 
     public enum CommandBar {
         public static let width: CGFloat = 765
-        public static let fieldHeight: CGFloat = 64
-        public static let rowHeight: CGFloat = 50
+        public static let fieldHeight: CGFloat = 63
+        /// Result rows are 46 pt tall on a 50 pt pitch.
+        public static let rowHeight: CGFloat = 46
+        public static let rowSpacing: CGFloat = 4
+        public static let resultsInsets = EdgeInsets(top: 6, leading: 9, bottom: 10, trailing: 9)
+        public static let fieldLeading: CGFloat = 22
+        /// Circular corners, like the page card.
         public static let cornerRadius: CGFloat = 12
         public static let rowCornerRadius: CGFloat = 8
         /// The panel's top edge sits at about a third of the window height.
@@ -58,14 +67,21 @@ public enum Metrics {
     }
 }
 
+/// Fixed Command Bar colors measured on Arc (dark appearance).
+public enum CommandBarColors {
+    public static let darkBackground = Color(red: 0x30 / 255, green: 0x30 / 255, blue: 0x2F / 255)
+    public static let lightBackground = Color.white
+    public static let selection = Color(red: 0x47 / 255, green: 0x4D / 255, blue: 0xD4 / 255)
+}
+
 public enum Typography {
-    public static let tabTitle = Font.system(size: 14, weight: .medium)
+    public static let tabTitle = Font.system(size: 14)
     public static let rowLabel = Font.system(size: 14)
     public static let sectionHeader = Font.system(size: 13, weight: .semibold)
-    public static let addressHost = Font.system(size: 13, weight: .medium)
+    public static let addressHost = Font.system(size: 14)
     public static let addressDetail = Font.system(size: 12)
     public static let caption = Font.system(size: 11, weight: .semibold)
-    public static let commandField = Font.system(size: 20)
+    public static let commandField = Font.system(size: 18)
     public static let commandRow = Font.system(size: 14, weight: .medium)
     public static let commandDetail = Font.system(size: 13)
     public static let body = Font.system(size: 13)

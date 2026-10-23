@@ -154,7 +154,7 @@ public struct ContentCard<Content: View>: View {
     }
 
     public var body: some View {
-        let shape = RoundedRectangle(cornerRadius: Metrics.Content.cornerRadius, style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: Metrics.Content.cornerRadius, style: Metrics.Content.cornerStyle)
         content
             .clipShape(shape)
             .overlay(shape.strokeBorder(
@@ -190,9 +190,11 @@ public struct FaviconView: View {
                     .tint(palette.icon)
             } else if let image {
                 Image(nsImage: image)
+                    .renderingMode(blendsIntoBackground(image) ? .template : .original)
                     .resizable()
                     .interpolation(.high)
                     .scaledToFit()
+                    .foregroundStyle(palette.primaryText)
                     .clipShape(RoundedRectangle(cornerRadius: size * 0.22, style: .continuous))
                     .transition(.opacity.animation(Motion.fadeIn))
             } else {
@@ -207,6 +209,15 @@ public struct FaviconView: View {
         }
         .frame(width: size, height: size)
         .accessibilityHidden(true)
+    }
+
+    /// A single-color icon of the sidebar's own lightness is drawn in the foreground color.
+    private func blendsIntoBackground(_ image: NSImage) -> Bool {
+        switch FaviconTone.monochromeTone(of: image) {
+        case .dark: palette.isDark
+        case .light: !palette.isDark
+        case nil: false
+        }
     }
 
     static func fallbackColor(for title: String) -> Color {
