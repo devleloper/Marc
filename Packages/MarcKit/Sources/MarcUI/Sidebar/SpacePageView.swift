@@ -92,10 +92,8 @@ struct SpaceHeader: View {
                     .focused($isEditing)
                     .onSubmit(commit)
                     .onExitCommand { window.renamingSpaceID = nil }
-                    .onAppear {
-                        draftName = space.name
-                        isEditing = true
-                    }
+                    .focusOnAppear($isEditing)
+                    .onAppear { draftName = space.name }
                     .onChange(of: isEditing) { _, editing in if !editing { commit() } }
             } else {
                 Text(space.name)
@@ -109,7 +107,9 @@ struct SpaceHeader: View {
         .padding(.leading, 8)
         .frame(height: 30)
         .contextMenu { SpaceBackgroundMenu(window: window, space: space) }
+        .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isHeader)
+        .accessibilityIdentifier("spaceHeader")
         .popover(isPresented: isEditingTheme, arrowEdge: .trailing) {
             ThemeEditor(theme: themeBinding)
         }

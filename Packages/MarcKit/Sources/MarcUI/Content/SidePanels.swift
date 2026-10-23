@@ -72,7 +72,7 @@ struct AssistantPanel: View {
                         .buttonStyle(.borderless)
                         .disabled(assistant.draftQuestion.trimmingCharacters(in: .whitespaces).isEmpty || assistant.isRunning)
                 }
-                .onAppear { questionFocused = true }
+                .focusOnAppear($questionFocused)
             }
         }
         .padding(14)

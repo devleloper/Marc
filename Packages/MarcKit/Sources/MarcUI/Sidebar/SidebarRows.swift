@@ -165,10 +165,8 @@ private struct RowTitle: View {
                 .focused($isFocused)
                 .onSubmit(commit)
                 .onExitCommand { window.renamingItemID = nil }
-                .onAppear {
-                    draft = title
-                    isFocused = true
-                }
+                .focusOnAppear($isFocused)
+                .onAppear { draft = title }
                 .onChange(of: isFocused) { _, focused in if !focused { commit() } }
         } else {
             Text(title)

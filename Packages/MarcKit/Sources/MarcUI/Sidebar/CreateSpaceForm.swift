@@ -90,10 +90,8 @@ struct CreateSpaceForm: View {
                 .padding(.bottom, 12)
         }
         .padding(.horizontal, Metrics.Sidebar.inset)
-        .onAppear {
-            profileID = window.profile?.id ?? window.workspace.orderedProfiles.first?.id
-            nameFocused = true
-        }
+        .focusOnAppear($nameFocused)
+        .onAppear { profileID = window.profile?.id ?? window.workspace.orderedProfiles.first?.id }
     }
 
     private func create() {

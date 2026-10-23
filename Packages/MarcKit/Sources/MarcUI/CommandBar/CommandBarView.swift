@@ -78,7 +78,7 @@ struct CommandBarView: View {
             lineWidth: 0.5,
         ))
         .shadow(color: .black.opacity(0.35), radius: 40, y: 18)
-        .onAppear { isFocused = true }
+        .focusOnAppear($isFocused)
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Command Bar")
         .accessibilityIdentifier("commandBar")

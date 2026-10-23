@@ -37,10 +37,8 @@ struct FindBar: View {
         .padding(.horizontal, 10)
         .frame(height: 34)
         .floatingSurface(cornerRadius: 9, material: .popover)
-        .onAppear {
-            query = tab.find.query
-            isFocused = true
-        }
+        .focusOnAppear($isFocused)
+        .onAppear { query = tab.find.query }
         .onChange(of: window.findFocusRequest) { isFocused = true }
         .onChange(of: query) { search(backwards: false, restart: true) }
     }
