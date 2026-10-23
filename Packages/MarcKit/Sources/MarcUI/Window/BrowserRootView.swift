@@ -19,17 +19,19 @@ public struct BrowserRootView: View {
         ZStack(alignment: .topLeading) {
             ThemeBackground(palette: palette, grain: window.space?.theme.grain ?? 0)
 
-            HStack(spacing: 0) {
-                if window.isSidebarVisible {
-                    SidebarView(window: window)
-                        .frame(width: sidebarWidth)
-                        .transition(.move(edge: .leading))
-                }
-                ContentArea(window: window)
-                    .padding(.top, Metrics.Content.inset)
-                    .padding(.trailing, Metrics.Content.inset)
-                    .padding(.bottom, Metrics.Content.inset)
-                    .padding(.leading, window.isSidebarVisible ? 0 : Metrics.Content.inset)
+            // The page and the sidebar are separate layers: the sidebar slides while the page's
+            // leading inset follows it in the same animation, so neither waits for the other's layout.
+            ContentArea(window: window)
+                .padding(.top, Metrics.Content.inset)
+                .padding(.trailing, Metrics.Content.inset)
+                .padding(.bottom, Metrics.Content.inset)
+                .padding(.leading, window.isSidebarVisible ? sidebarWidth : Metrics.Content.inset)
+
+            if window.isSidebarVisible {
+                SidebarView(window: window)
+                    .frame(width: sidebarWidth)
+                    .frame(maxHeight: .infinity)
+                    .transition(.move(edge: .leading))
             }
 
             if window.isSidebarVisible {
@@ -57,6 +59,9 @@ public struct BrowserRootView: View {
         .sheet(isPresented: $window.isShowingImport) { ImportSheet(window: window) }
         .frame(minWidth: Metrics.Window.minimumSize.width, minHeight: Metrics.Window.minimumSize.height)
         .background(WindowAccessor(window: window))
+        // Custom controls draw their own hover and selection states; the system keyboard-focus
+        // ring stayed on buttons and fields after clicks, so it's off in browser windows.
+        .focusEffectDisabled()
     }
 }
 
@@ -185,7 +190,7 @@ private struct PeekOverlay: View {
                             .help("Close")
                             .keyboardShortcut(.cancelAction)
                     }
-                    .buttonStyle(.borderless)
+                    .buttonStyle(.pressable)
                     .padding(.horizontal, 12)
                     .frame(height: 34)
                     .background(.regularMaterial)

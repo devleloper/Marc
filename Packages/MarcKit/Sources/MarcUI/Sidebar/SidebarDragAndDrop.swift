@@ -65,6 +65,7 @@ struct SidebarDropDelegate: DropDelegate {
     }
 
     func dropEntered(info: DropInfo) {
+        window.noteDropActivity()
         withAnimation(Motion.hover) { isTargeted = true }
     }
 
@@ -73,7 +74,8 @@ struct SidebarDropDelegate: DropDelegate {
     }
 
     func dropUpdated(info: DropInfo) -> DropProposal? {
-        DropProposal(operation: .move)
+        window.noteDropActivity()
+        return DropProposal(operation: .move)
     }
 
     func performDrop(info: DropInfo) -> Bool {
@@ -103,14 +105,17 @@ struct RowDropDelegate: DropDelegate {
         info.hasItemsConforming(to: SidebarDragPayload.types)
     }
 
-    func dropUpdated(info: DropInfo) -> DropProposal? {
+    /// Where a drop at the pointer's location goes: the middle half of a folder drops into it.
+    private func position(for info: DropInfo) -> Position {
         let height = Metrics.Sidebar.rowHeight
         let y = info.location.y
-        let newPosition: Position = if item.kind == .folder, y > height * 0.25, y < height * 0.75 {
-            .into
-        } else {
-            y < height / 2 ? .before : .after
-        }
+        if item.kind == .folder, y > height * 0.25, y < height * 0.75 { return .into }
+        return y < height / 2 ? .before : .after
+    }
+
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        window.noteDropActivity()
+        let newPosition = position(for: info)
         if newPosition != position { position = newPosition }
         return DropProposal(operation: .move)
     }
@@ -120,7 +125,8 @@ struct RowDropDelegate: DropDelegate {
     }
 
     func performDrop(info: DropInfo) -> Bool {
-        let resolved = position ?? .after
+        // From the drop location rather than the highlight, which may already have been reset.
+        let resolved = position(for: info)
         position = nil
         let workspace = window.workspace
         // Rows inside a split behave like the split itself.

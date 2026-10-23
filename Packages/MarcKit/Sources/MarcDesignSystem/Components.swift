@@ -49,6 +49,42 @@ struct FloatingSurface: ViewModifier {
 
 // MARK: - Buttons
 
+/// Arc-style press feedback: the control sinks a little while pressed and springs back when
+/// released. Disabled controls dim instead. With Reduce Motion, pressing dims rather than scales.
+public struct PressableButtonStyle: ButtonStyle {
+    let pressedScale: CGFloat
+
+    public init(pressedScale: CGFloat = 0.92) {
+        self.pressedScale = pressedScale
+    }
+
+    public func makeBody(configuration: Configuration) -> some View {
+        PressableLabel(configuration: configuration, pressedScale: pressedScale)
+    }
+}
+
+private struct PressableLabel: View {
+    let configuration: ButtonStyleConfiguration
+    let pressedScale: CGFloat
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        let isPressed = configuration.isPressed && isEnabled
+        configuration.label
+            .scaleEffect(isPressed && !reduceMotion ? pressedScale : 1)
+            .opacity(isEnabled ? (isPressed && reduceMotion ? 0.6 : 1) : 0.4)
+            .animation(isPressed ? Motion.pressDown : Motion.pressUp, value: isPressed)
+    }
+}
+
+public extension ButtonStyle where Self == PressableButtonStyle {
+    /// Press feedback for icon buttons, tiles and other compact controls.
+    static var pressable: PressableButtonStyle { PressableButtonStyle() }
+    /// Gentler press feedback for wide controls such as sidebar rows.
+    static var pressableRow: PressableButtonStyle { PressableButtonStyle(pressedScale: 0.97) }
+}
+
 /// A 32×32 toolbar button with a hover fill, used in the sidebar toolbar and panels.
 public struct IconButton: View {
     @Environment(\.themePalette) private var palette
@@ -79,7 +115,7 @@ public struct IconButton: View {
         Button(action: action) {
             Image(systemName: systemName)
                 .font(.system(size: symbolSize, weight: .medium))
-                .foregroundStyle(isEnabled ? palette.icon : palette.tertiaryText)
+                .foregroundStyle(palette.icon)
                 .frame(width: size, height: size)
                 .background {
                     RoundedRectangle(cornerRadius: 7, style: .continuous)
@@ -87,7 +123,7 @@ public struct IconButton: View {
                 }
                 .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
         .onHover { hovering in withAnimation(Motion.hover) { isHovered = hovering } }
         .accessibilityLabel(Text(label))
         .help(Text(label))
@@ -116,7 +152,7 @@ public struct PillButton: View {
                 .background(Capsule().fill(isHovered ? palette.selectedFill : palette.fieldFill))
                 .overlay(Capsule().strokeBorder(palette.separator, lineWidth: 0.5))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
         .onHover { isHovered = $0 }
     }
 }
@@ -137,6 +173,8 @@ public struct PrimaryButtonStyle: ButtonStyle {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .fill(Color(red: 0.2, green: 0.22, blue: 0.75).opacity(configuration.isPressed ? 0.8 : isEnabled ? 1 : 0.45)),
             )
+            .scaleEffect(configuration.isPressed && isEnabled ? 0.97 : 1)
+            .animation(configuration.isPressed ? Motion.pressDown : Motion.pressUp, value: configuration.isPressed)
     }
 }
 
@@ -289,7 +327,7 @@ public struct ToastView: View {
             Text(message).font(.system(size: 13, weight: .medium))
             if let actionTitle, let action {
                 Button(actionTitle, action: action)
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable)
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(Color(red: 0.55, green: 0.6, blue: 1))
             }

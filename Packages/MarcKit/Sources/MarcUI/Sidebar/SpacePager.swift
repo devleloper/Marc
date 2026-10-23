@@ -134,6 +134,9 @@ struct HorizontalSwipeMonitor: NSViewRepresentable {
         private var monitor: Any?
         private var translation: CGFloat = 0
         private var isTracking = false
+        /// Whether the current gesture started over the sidebar. Gestures that start over the page
+        /// belong to the page, where WebKit turns horizontal swipes into back and forward.
+        private var beganInSidebar = false
         private var lastDelta: CGFloat = 0
         private var lastTimestamp: TimeInterval = 0
 
@@ -161,12 +164,15 @@ struct HorizontalSwipeMonitor: NSViewRepresentable {
         /// Returns true when the event was consumed as a Space swipe.
         private func handle(_ event: NSEvent) -> Bool {
             guard event.window === window, event.hasPreciseScrollingDeltas else { return false }
-            let location = convert(event.locationInWindow, from: nil)
-            if event.phase == .began {
-                guard bounds.contains(location) else { return false }
+            if event.phase == .began || event.phase == .mayBegin {
+                // The pager spans the sidebar's width, so its horizontal extent is the sidebar column,
+                // from the toolbar down to the footer.
+                let location = convert(event.locationInWindow, from: nil)
+                beganInSidebar = location.x >= bounds.minX && location.x <= bounds.maxX
                 isTracking = false
                 translation = 0
             }
+            guard beganInSidebar else { return false }
             if !event.momentumPhase.isEmpty { return isTracking }
 
             switch event.phase {

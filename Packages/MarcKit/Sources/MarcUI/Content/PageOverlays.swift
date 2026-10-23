@@ -32,7 +32,7 @@ struct FindBar: View {
                 .disabled(tab.find.matchCount == 0)
             Button("Done", action: close)
         }
-        .buttonStyle(.borderless)
+        .buttonStyle(.pressable)
         .font(.system(size: 12))
         .padding(.horizontal, 10)
         .frame(height: 34)
@@ -246,7 +246,7 @@ struct AutofillPopover: View {
                     .padding(8)
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressableRow)
             }
             ForEach(offer.credentials) { credential in
                 Button {
@@ -258,7 +258,7 @@ struct AutofillPopover: View {
                         .padding(8)
                         .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressableRow)
             }
         }
         .padding(4)

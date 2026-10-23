@@ -33,6 +33,7 @@ struct SpacePageView: View {
                             destination: SidebarDestination(container: .pinned(space.id), index: pinned.count),
                             isTargeted: $pinnedDropTargeted,
                         ))
+                        .onChange(of: window.dropHighlightResets) { pinnedDropTargeted = false }
                         .overlay(alignment: .top) {
                             if pinnedDropTargeted { DropIndicatorLine() }
                         }
@@ -58,6 +59,7 @@ struct SpacePageView: View {
                         destination: SidebarDestination(container: .today(space.id), index: today.count),
                         isTargeted: $todayDropTargeted,
                     ))
+                    .onChange(of: window.dropHighlightResets) { todayDropTargeted = false }
                     .overlay(alignment: .top) {
                         if todayDropTargeted { DropIndicatorLine() }
                     }
@@ -111,7 +113,7 @@ struct SpaceHeader: View {
         .accessibilityAddTraits(.isHeader)
         .accessibilityIdentifier("spaceHeader")
         .popover(isPresented: isEditingTheme, arrowEdge: .trailing) {
-            ThemeEditor(theme: themeBinding)
+            ThemeEditor(theme: themeBinding).focusEffectDisabled()
         }
     }
 
@@ -154,7 +156,7 @@ struct TodayDivider: View {
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(isClearHovered ? palette.secondaryText : palette.tertiaryText)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable)
                 .onHover { isClearHovered = $0 }
                 .help("Archive all Today tabs (⇧⌘K)")
                 .transition(.opacity)
@@ -186,7 +188,7 @@ struct NewTabRow: View {
             .rowBackground(isSelected: false, isHovered: isHovered)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressableRow)
         .onHover { hovering in withAnimation(Motion.hover) { isHovered = hovering } }
         .accessibilityIdentifier("newTabRow")
     }

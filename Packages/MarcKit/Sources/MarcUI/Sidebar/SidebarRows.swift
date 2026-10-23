@@ -52,6 +52,7 @@ private struct RowContainer<Content: View>: View {
             .onHover { hovering in withAnimation(Motion.hover) { isHovered = hovering } }
             .onDrag { SidebarDragPayload.provider(for: item.id) }
             .onDrop(of: SidebarDragPayload.types, delegate: RowDropDelegate(window: window, item: item, position: $dropPosition))
+            .onChange(of: window.dropHighlightResets) { dropPosition = nil }
             .overlay(alignment: dropPosition == .after ? .bottom : .top) {
                 if dropPosition == .before || dropPosition == .after {
                     DropIndicatorLine().offset(y: dropPosition == .before ? -3.5 : 3.5)

@@ -22,7 +22,7 @@ struct LittleWindowView: View {
                             .foregroundStyle(palette.primaryText)
                             .lineLimit(1)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable)
                 }
                 Spacer()
                 IconButton("link", label: "Copy URL", size: 26, symbolSize: 12) { window.copyCurrentURL() }
@@ -56,6 +56,7 @@ struct LittleWindowView: View {
             }
         }
         .environment(\.themePalette, palette)
+        .focusEffectDisabled()
     }
 
     /// Moves the tab, with its live web view, into the main window's current Space.

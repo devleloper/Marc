@@ -113,7 +113,7 @@ private struct PaneHeader: View {
                     .help("Close Split Pane")
             }
         }
-        .buttonStyle(.borderless)
+        .buttonStyle(.pressable)
         .font(.system(size: 11, weight: .semibold))
         .padding(.horizontal, 8)
         .frame(height: 26)

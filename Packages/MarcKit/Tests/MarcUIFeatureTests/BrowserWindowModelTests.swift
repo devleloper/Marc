@@ -24,6 +24,17 @@ struct BrowserWindowModelTests {
         return Fixture(session: session)
     }
 
+    @Test func `drop highlights reset once drag updates stop`() async throws {
+        let fixture = try await makeWindow()
+        let window = fixture.window
+        let before = window.dropHighlightResets
+        window.noteDropActivity(quietPeriod: .milliseconds(20))
+        window.noteDropActivity(quietPeriod: .milliseconds(20))
+        #expect(window.dropHighlightResets == before, "Updates keep the highlight")
+        try await Task.sleep(for: .milliseconds(200))
+        #expect(window.dropHighlightResets == before + 1, "One reset after updates stop")
+    }
+
     @Test func `opening a url adds a selected today tab`() async throws {
         let fixture = try await makeWindow()
         let window = fixture.window

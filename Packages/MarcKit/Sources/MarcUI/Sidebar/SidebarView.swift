@@ -66,7 +66,7 @@ struct SidebarToolbar: View {
     var body: some View {
         let tab = window.selectedTab
         HStack(spacing: 2) {
-            Color.clear.frame(width: 75)
+            Color.clear.frame(width: window.isFullScreen ? 0 : Metrics.Window.trafficLightsReservedWidth)
             IconButton("sidebar.left", label: "Toggle Sidebar") { window.toggleSidebar() }
             Spacer(minLength: 0)
             IconButton("arrow.left", label: "Back") { tab?.goBack() }
@@ -80,8 +80,10 @@ struct SidebarToolbar: View {
                     .disabled(tab == nil)
             }
         }
+        .padding(.leading, window.isFullScreen ? 6 : 0)
         .padding(.trailing, 6)
         .frame(height: Metrics.Sidebar.toolbarHeight)
+        .animation(Motion.sidebarToggle, value: window.isFullScreen)
         .contentShape(Rectangle())
         .gesture(WindowDragGesture())
     }
@@ -122,7 +124,7 @@ struct AddressField: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressableRow)
                 .accessibilityLabel("Address, \(url.absoluteString)")
                 .accessibilityIdentifier("addressField")
                 IconButton("link", label: "Copy URL", size: 28, symbolSize: 13) { window.copyCurrentURL() }
@@ -130,7 +132,7 @@ struct AddressField: View {
                     window.siteControlItemID = window.selectedItemID
                 }
                 .popover(isPresented: siteControlsBinding, arrowEdge: .bottom) {
-                    if let tab { SiteControlsPopover(window: window, tab: tab) }
+                    if let tab { SiteControlsPopover(window: window, tab: tab).focusEffectDisabled() }
                 }
             } else {
                 Button { window.showCommandBar(window.selectedTab == nil ? .newTab : .currentTab) } label: {
@@ -142,7 +144,7 @@ struct AddressField: View {
                     .foregroundStyle(palette.secondaryText)
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressableRow)
                 .accessibilityIdentifier("addressField")
             }
         }

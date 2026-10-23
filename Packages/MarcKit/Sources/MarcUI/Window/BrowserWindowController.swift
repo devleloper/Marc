@@ -8,8 +8,34 @@ import SwiftUI
 /// A borderless-looking window: transparent title bar, full-size content and traffic lights
 /// placed where Arc puts them.
 public final class BrowserWindow: NSWindow {
+    /// Hidden while the sidebar is; the buttons fade along with the sidebar animation.
     var trafficLightsHidden = false {
-        didSet { positionTrafficLights() }
+        didSet {
+            guard trafficLightsHidden != oldValue else { return }
+            updateTrafficLightVisibility(animated: true)
+        }
+    }
+
+    private var trafficLightButtons: [NSButton] {
+        [.closeButton, .miniaturizeButton, .zoomButton].compactMap { standardWindowButton($0) }
+    }
+
+    /// Full screen always shows the traffic lights (in the title bar that slides down).
+    func updateTrafficLightVisibility(animated: Bool) {
+        let hidden = trafficLightsHidden && !styleMask.contains(.fullScreen)
+        let buttons = trafficLightButtons
+        if !hidden { buttons.forEach { $0.isHidden = false } }
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = animated ? 0.2 : 0
+            context.allowsImplicitAnimation = animated
+            buttons.forEach { $0.animator().alphaValue = hidden ? 0 : 1 }
+        } completionHandler: {
+            // Fully hidden buttons must not take clicks; skip if the sidebar came back meanwhile.
+            MainActor.assumeIsolated { [weak self] in
+                guard let self, trafficLightsHidden, !self.styleMask.contains(.fullScreen) else { return }
+                trafficLightButtons.forEach { $0.isHidden = true }
+            }
+        }
     }
 
     /// The vertical center of the traffic lights, matching the window's toolbar row.
@@ -27,9 +53,7 @@ public final class BrowserWindow: NSWindow {
         guard let close = standardWindowButton(.closeButton), let container = close.superview else { return }
         let isFullScreen = styleMask.contains(.fullScreen)
         for (index, type) in buttons.enumerated() {
-            guard let button = standardWindowButton(type) else { continue }
-            button.isHidden = trafficLightsHidden && !isFullScreen
-            guard !isFullScreen else { continue }
+            guard let button = standardWindowButton(type), !isFullScreen else { continue }
             let origin = NSPoint(
                 x: Metrics.Window.trafficLightLeading + CGFloat(index) * 23,
                 y: container.frame.height - trafficLightCenterY - button.frame.height / 2,
@@ -124,7 +148,20 @@ public final class BrowserWindowController: NSWindowController, NSWindowDelegate
         saveFrame()
     }
 
+    public func windowWillEnterFullScreen(_ notification: Notification) {
+        model.isFullScreen = true
+    }
+
+    public func windowDidEnterFullScreen(_ notification: Notification) {
+        (window as? BrowserWindow)?.updateTrafficLightVisibility(animated: false)
+    }
+
+    public func windowWillExitFullScreen(_ notification: Notification) {
+        model.isFullScreen = false
+    }
+
     public func windowDidExitFullScreen(_ notification: Notification) {
+        (window as? BrowserWindow)?.updateTrafficLightVisibility(animated: false)
         (window as? BrowserWindow)?.positionTrafficLights()
     }
 

@@ -1,4 +1,5 @@
 import MarcCore
+import MarcDesignSystem
 import SwiftUI
 
 /// Icon tiles for choosing the icon Marc shows in the Dock. The images come from the app's asset
@@ -25,7 +26,7 @@ struct AppIconPicker: View {
                     }
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable)
                 .accessibilityLabel(style.displayName)
                 .accessibilityAddTraits(selection == style ? [.isButton, .isSelected] : .isButton)
                 .accessibilityIdentifier("appIcon-\(style.rawValue)")

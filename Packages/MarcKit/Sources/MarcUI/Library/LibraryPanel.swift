@@ -49,7 +49,7 @@ struct LibraryPanel: View {
                                 .fill(section == candidate ? palette.selectedFill : .clear))
                             .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable)
                     .help(candidate.rawValue)
                     .accessibilityLabel(candidate.rawValue)
                 }
@@ -147,7 +147,7 @@ private struct DownloadsList: View {
             }
             if downloads.downloads.contains(where: { !$0.state.isActive }) {
                 Button("Clear Finished") { downloads.clearFinished() }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable)
                     .font(Typography.caption)
                     .foregroundStyle(window.palette.secondaryText)
                     .padding(.top, 6)
@@ -201,7 +201,7 @@ private struct ArchiveList: View {
             }
             if !archive.tabs.isEmpty {
                 Button("Clear Archive") { archive.clear() }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable)
                     .font(Typography.caption)
                     .foregroundStyle(window.palette.secondaryText)
                     .padding(.top, 6)
@@ -217,7 +217,7 @@ private struct NotesList: View {
         if let notes = window.session?.notes {
             let sorted = notes.notes.values.sorted { $0.updatedAt > $1.updatedAt }
             Button { window.perform(.newNote) } label: { Label("New Note", systemImage: "plus") }
-                .buttonStyle(.plain)
+                .buttonStyle(.pressable)
                 .font(.system(size: 12, weight: .medium))
                 .padding(.vertical, 6)
             if sorted.isEmpty {

@@ -113,10 +113,12 @@ Timings were measured frame by frame from 60 fps screen recordings of Arc.
 
 | Interaction | Measured behavior | Marc motion token |
 | --- | --- | --- |
-| Toggle sidebar (`⌘S`) | ≈100 ms; progress 0.52 / 0.81 / 0.94 / 0.985 at successive frames — an ease-out quart curve. Hidden sidebar leaves a 10 pt inset around the content card. | `Motion.sidebarToggle` = `timingCurve(0.25, 1, 0.5, 1, 0.1)` |
+| Toggle sidebar (`⌘S`) | ≈100 ms; progress 0.52 / 0.81 / 0.94 / 0.985 at successive frames — an ease-out quart curve. Hidden sidebar leaves a 10 pt inset around the content card. | `Motion.sidebarToggle` = `.smooth(duration: 0.3)`: a deliberate departure, because the 100 ms curve looked abrupt with the page resizing alongside. The sidebar slides as its own layer while the page's inset follows, and the traffic lights fade with it. |
 | Switch Space | ≈300 ms horizontal pager; the remaining offset decays exponentially (τ ≈ 43 ms), i.e. ease-out expo. Only the Space page (header, pinned, today) moves; toolbar, address field and favorites stay. Favicons fade in after the page lands. | `Motion.spacePage` = `timingCurve(0.16, 1, 0.3, 1, 0.3)` |
 | Command Bar open/close | Appears and disappears within one frame; the page behind is not dimmed. | `Motion.instant` |
 | Row hover | Fill changes immediately to 10 % white; close button appears on the trailing edge. | `Motion.hover` (≈80 ms ease-out) |
+| Press a button | The control sinks slightly while held and springs back on release. | `PressableButtonStyle`: scale 0.92 (0.97 for full-width rows), `Motion.pressDown` / `Motion.pressUp` |
+| Trackpad swipe | Over the sidebar: switches Spaces. Over the page: back and forward. | `HorizontalSwipeMonitor` only claims gestures that start in the sidebar column |
 
 ## 8. Menus observed
 

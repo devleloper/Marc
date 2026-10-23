@@ -36,6 +36,7 @@ struct FavoritesGrid: View {
             destination: SidebarDestination(container: .favorites(profileID), index: favorites.count),
             isTargeted: $isDropTargeted,
         ))
+        .onChange(of: window.dropHighlightResets) { isDropTargeted = false }
         .animation(Motion.listChange, value: favorites.map(\.id))
     }
 }
@@ -70,7 +71,7 @@ private struct FavoriteTile: View {
             .frame(height: Metrics.Sidebar.favoriteTileHeight)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.pressable)
         .onHover { hovering in withAnimation(Motion.hover) { isHovered = hovering } }
         .help(item.tab?.displayTitle ?? "")
         .accessibilityLabel(item.tab?.displayTitle ?? "Favorite")

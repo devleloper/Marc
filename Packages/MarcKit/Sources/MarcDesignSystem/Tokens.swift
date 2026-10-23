@@ -9,6 +9,8 @@ public enum Metrics {
         /// Traffic lights sit 12 pt from the left edge, vertically centered on the toolbar row.
         public static let trafficLightLeading: CGFloat = 12
         public static let trafficLightCenterY: CGFloat = 23
+        /// Room the sidebar toolbar leaves for the traffic lights (none in full screen).
+        public static let trafficLightsReservedWidth: CGFloat = 75
         /// The Little window's single bar, which also holds its traffic lights.
         public static let littleToolbarHeight: CGFloat = 38
     }
@@ -67,6 +69,13 @@ public enum Metrics {
     }
 }
 
+/// The colors of Marc's icon, for brand accents such as the page loading bar.
+public enum BrandColors {
+    public static let violet = Color(red: 0x8E / 255, green: 0x72 / 255, blue: 0xFF / 255)
+    public static let sky = Color(red: 0x5A / 255, green: 0xA6 / 255, blue: 0xF6 / 255)
+    public static let teal = Color(red: 0x2C / 255, green: 0xC9 / 255, blue: 0xC2 / 255)
+}
+
 /// Fixed Command Bar colors measured on Arc (dark appearance).
 public enum CommandBarColors {
     public static let darkBackground = Color(red: 0x30 / 255, green: 0x30 / 255, blue: 0x2F / 255)
@@ -90,8 +99,12 @@ public enum Typography {
 
 /// Animation primitives. Curves were fitted to frame-by-frame recordings of Arc.
 public enum Motion {
-    /// Sidebar show/hide: ease-out quart, 100 ms.
-    public static let sidebarToggle = Animation.timingCurve(0.25, 1, 0.5, 1, duration: 0.1)
+    /// Sidebar show/hide: a critically damped spring. Arc's measured 100 ms ease-out felt abrupt
+    /// with the page resizing alongside, so this is deliberately a little longer.
+    public static let sidebarToggle = Animation.smooth(duration: 0.3)
+    /// Pressing a control: it sinks quickly and springs back with a little bounce on release.
+    public static let pressDown = Animation.easeOut(duration: 0.08)
+    public static let pressUp = Animation.spring(response: 0.3, dampingFraction: 0.55)
     /// Space paging: ease-out expo, 300 ms.
     public static let spacePage = Animation.timingCurve(0.16, 1, 0.3, 1, duration: 0.3)
     public static let hover = Animation.easeOut(duration: 0.08)
