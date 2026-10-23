@@ -82,6 +82,15 @@ private struct GeneralSettings: View {
                 }
             }
             Section {
+                AppIconPicker(selection: settings.appIcon)
+            } header: {
+                Text("App Icon")
+            } footer: {
+                Text("Marc shows this icon in the Dock while it's open. When Marc is closed, the Dock and Finder show the standard icon.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Section {
                 Button("Import from Another Browser…") {
                     session.keyWindow?.isShowingImport = true
                     session.keyWindow?.nsWindow?.makeKeyAndOrderFront(nil)

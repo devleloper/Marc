@@ -67,6 +67,8 @@ Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) before making larger changes. 
 | `Packages/MarcKit/Sources/MarcDesignSystem` | Design tokens, theme palette, motion and shared components. |
 | `Packages/MarcKit/Sources/MarcUI` | Feature views and view models. |
 | `MarcUITests/` | End-to-end tests. |
+| `design/` | Swift scripts that render the app icons and the disk image background. |
+| `packaging/dmg/` | Disk image layout (dmgbuild settings and pinned requirements). |
 | `docs/` | Architecture, feature inventory, limitations, roadmap and release process. |
 
 Dependency rules are enforced by the package graph: `MarcCore` imports nothing but Foundation

@@ -8,6 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var environment: AppEnvironment?
     private var windows: WindowManager?
     private var menu: MainMenu?
+    private var appIcon: AppIconController?
     /// Links that arrived before the session was ready.
     private var pendingURLs: [URL] = []
     private let logger = Logger(subsystem: "dev.devleloper.Marc", category: "App")
@@ -20,6 +21,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         do {
             let environment = try await AppEnvironment.make()
             self.environment = environment
+            appIcon = AppIconController(settings: environment.session.settings)
             let windows = WindowManager(session: environment.session, updater: environment.updater)
             self.windows = windows
             let menu = MainMenu(session: environment.session, windows: windows)

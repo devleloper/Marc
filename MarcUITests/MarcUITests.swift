@@ -63,6 +63,21 @@ final class MarcUITests: XCTestCase {
     }
 
     @MainActor
+    func testChoosingTheAppIcon() {
+        let app = launch()
+        defer { app.terminate() }
+        XCTAssertTrue(app.windows.firstMatch.waitForExistence(timeout: 10))
+        app.typeKey(",", modifierFlags: .command)
+        let marc = app.descendants(matching: .any)["appIcon-marc"]
+        let aurora = app.descendants(matching: .any)["appIcon-aurora"]
+        XCTAssertTrue(aurora.waitForExistence(timeout: 5))
+        XCTAssertTrue(marc.isSelected, "Marc is the default icon")
+        aurora.click()
+        XCTAssertTrue(aurora.isSelected)
+        XCTAssertFalse(marc.isSelected)
+    }
+
+    @MainActor
     func testCreatingASpace() {
         // With some keyboard layouts (such as U.S. International – PC) XCUITest synthesizes "c" as
         // ⌘C, so typed test strings avoid that letter.

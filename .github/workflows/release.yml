@@ -231,11 +231,12 @@ jobs:
       - name: Build the disk image
         env:
           VERSION: ${{ steps.version.outputs.version }}
+          SIGNED: ${{ steps.signing.outputs.signed }}
         run: |
-          mkdir -p "$RUNNER_TEMP/dmg" dist
-          ditto "$RUNNER_TEMP/export/Marc.app" "$RUNNER_TEMP/dmg/Marc.app"
-          ln -s /Applications "$RUNNER_TEMP/dmg/Applications"
-          hdiutil create -volname Marc -srcfolder "$RUNNER_TEMP/dmg" -ov -format UDZO "dist/Marc-$VERSION.dmg"
+          mkdir -p dist
+          variant=()
+          [[ "$SIGNED" != "true" ]] && variant=(--preview)
+          scripts/make-dmg.sh "$RUNNER_TEMP/export/Marc.app" "dist/Marc-$VERSION.dmg" "${variant[@]}"
 
       - name: Sign and notarize the disk image
         if: steps.signing.outputs.signed == 'true'

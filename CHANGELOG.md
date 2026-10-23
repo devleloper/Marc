@@ -39,6 +39,9 @@ The first public version will be 0.1.0.
   the Claude API (key stored in the Keychain) or on-device Apple Foundation Models.
 - **Settings** for search engines, privacy, appearance, shortcuts, passwords, AI, extensions
   and profiles; onboarding; default-browser registration.
+- **App icon** in two styles, the white Marc tile and the dark Aurora tile, chosen in Settings ›
+  General or matched to light and dark appearance.
+- A **disk image** with a designed window: background, arrow and Applications shortcut.
 - **Updates** through Sparkle in signed releases.
 - Unit, integration and UI tests; CI and release workflows. Releases are ad hoc-signed previews
   until Developer ID signing is configured.
