@@ -106,6 +106,7 @@ extension WebTab: WKScriptMessageHandler {
             state.isMuted = body["isMuted"] as? Bool ?? media.isMuted
             state.hasVideo = body["hasVideo"] as? Bool ?? false
             state.hasMedia = body["hasMedia"] as? Bool ?? false
+            state.isInPictureInPicture = body["isInPictureInPicture"] as? Bool ?? false
             state.title = body["title"] as? String
             state.artist = body["artist"] as? String
             state.artworkURL = (body["artwork"] as? String).flatMap(URL.init(string:))

@@ -2,28 +2,38 @@ import AppKit
 import SwiftUI
 
 /// The Space theme painted behind the browser chrome: a diagonal gradient, soft glows taken
-/// from the theme's colors, and optional film grain.
+/// from the theme's colors, and optional film grain. With translucency, the colors thin out over a
+/// blur of whatever is behind the window.
 public struct ThemeBackground: View {
     let palette: ThemePalette
     let grain: Double
+    let translucency: Double
 
-    public init(palette: ThemePalette, grain: Double) {
+    public init(palette: ThemePalette, grain: Double, translucency: Double = 0) {
         self.palette = palette
         self.grain = grain
+        self.translucency = translucency
     }
 
     public var body: some View {
         ZStack {
-            palette.backgroundGradient
-            GeometryReader { proxy in
-                let glow = palette.backgroundColors.last ?? .black
-                RadialGradient(
-                    colors: [glow.mixed(with: palette.isDark ? .white : .black, amount: 0.08).color.opacity(0.9), .clear],
-                    center: UnitPoint(x: 0.85, y: 0.9),
-                    startRadius: 0,
-                    endRadius: max(proxy.size.width, proxy.size.height) * 0.6,
-                )
+            if translucency > 0 {
+                VisualEffectBackground(material: .underWindowBackground, blendingMode: .behindWindow)
             }
+            Group {
+                palette.backgroundGradient
+                GeometryReader { proxy in
+                    let glow = palette.backgroundColors.last ?? .black
+                    RadialGradient(
+                        colors: [glow.mixed(with: palette.isDark ? .white : .black, amount: 0.08).color.opacity(0.9), .clear],
+                        center: UnitPoint(x: 0.85, y: 0.9),
+                        startRadius: 0,
+                        endRadius: max(proxy.size.width, proxy.size.height) * 0.6,
+                    )
+                }
+            }
+            // Even at full translucency a tint of the theme remains, so text stays readable.
+            .opacity(1 - translucency * 0.8)
             if grain > 0 {
                 GrainOverlay(opacity: grain * (palette.isDark ? 0.18 : 0.12))
             }

@@ -5,6 +5,11 @@ import WebKit
 public final class MarcWebView: WKWebView {
     weak var owner: WebTab?
 
+    override public func mouseDown(with event: NSEvent) {
+        if let owner { owner.delegate?.webTabDidReceiveClick(owner) }
+        super.mouseDown(with: event)
+    }
+
     /// WebKit does not publish constants for its menu item identifiers; these strings are the
     /// identifiers WebKit assigns at runtime. If they ever change, Marc's items are simply
     /// appended instead of replacing WebKit's.

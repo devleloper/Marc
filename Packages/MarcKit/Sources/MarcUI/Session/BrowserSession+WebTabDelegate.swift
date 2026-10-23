@@ -218,6 +218,10 @@ extension BrowserSession: WebTabDelegate {
 
     public func webTabDidFinishPicking(_ tab: WebTab) {}
 
+    public func webTabDidReceiveClick(_ tab: WebTab) {
+        window(containing: tab.id)?.focusPane(tab.id)
+    }
+
     // MARK: - AI
 
     /// Rewrites the titles of the Space's Today tabs into short names.

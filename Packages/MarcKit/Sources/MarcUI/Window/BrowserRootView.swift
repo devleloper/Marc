@@ -17,7 +17,11 @@ public struct BrowserRootView: View {
         let palette = window.palette
         let sidebarWidth = window.state.sidebarWidth
         ZStack(alignment: .topLeading) {
-            ThemeBackground(palette: palette, grain: window.space?.theme.grain ?? 0)
+            ThemeBackground(
+                palette: palette,
+                grain: window.space?.theme.grain ?? 0,
+                translucency: window.space?.theme.translucency ?? 0,
+            )
 
             // The page and the sidebar are separate layers: the sidebar slides while the page's
             // leading inset follows it in the same animation, so neither waits for the other's layout.
@@ -102,9 +106,13 @@ private struct HiddenSidebarReveal: View {
                 SidebarView(window: window)
                     .frame(width: window.state.sidebarWidth)
                     .background {
-                        ThemeBackground(palette: palette, grain: window.space?.theme.grain ?? 0)
-                            .clipShape(UnevenRoundedRectangle(bottomTrailingRadius: 10, topTrailingRadius: 10, style: .continuous))
-                            .shadow(color: .black.opacity(0.35), radius: 18, x: 4)
+                        ThemeBackground(
+                            palette: palette,
+                            grain: window.space?.theme.grain ?? 0,
+                            translucency: window.space?.theme.translucency ?? 0,
+                        )
+                        .clipShape(UnevenRoundedRectangle(bottomTrailingRadius: 10, topTrailingRadius: 10, style: .continuous))
+                        .shadow(color: .black.opacity(0.35), radius: 18, x: 4)
                     }
                     .padding(.vertical, 4)
                     .onHover { hovering in

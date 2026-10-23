@@ -2,11 +2,15 @@ import Foundation
 import MarcCore
 import MarcWebKit
 import Testing
+import UniformTypeIdentifiers
 @testable import MarcUI
 
 @MainActor
 struct BrowserWindowModelTests {
     let blank = URL(string: "about:blank")!
+    let siteA = URL(string: "https://a.example")!
+    let siteB = URL(string: "https://b.example")!
+    let siteC = URL(string: "https://c.example")!
 
     /// Keeps the session alive for the whole test; windows only hold it weakly.
     final class Fixture {
@@ -22,6 +26,64 @@ struct BrowserWindowModelTests {
     func makeWindow() async throws -> Fixture {
         let (session, _, _) = try await TestSession.make()
         return Fixture(session: session)
+    }
+
+    @Test func `splitting from a favorite opens its page in Today and splits there`() async throws {
+        let fixture = try await makeWindow()
+        let window = fixture.window
+        let favorite = try #require(window.open(siteA, placement: .newTab))
+        try window.store.update { try $0.addToFavorites(favorite) }
+        window.select(favorite)
+        let other = try #require(window.open(siteB, placement: .splitWithSelection))
+        let split = try #require(window.selectedSplit?.split)
+        #expect(split.layout.panes.count == 2)
+        #expect(split.layout.panes.contains(other))
+        #expect(!split.layout.panes.contains(favorite), "The favorite itself stays a favorite")
+        #expect(window.workspace.items[favorite]?.container.section == .favorites)
+    }
+
+    @Test func `clicking into a pane selects it only within the visible split`() async throws {
+        let fixture = try await makeWindow()
+        let window = fixture.window
+        let left = try #require(window.open(siteA, placement: .newTab))
+        let right = try #require(window.open(siteB, placement: .splitWithSelection))
+        let outside = try #require(window.open(siteC, placement: .newTab, select: false))
+        #expect(window.selectedItemID == right)
+        window.focusPane(left)
+        #expect(window.selectedItemID == left)
+        window.focusPane(outside)
+        #expect(window.selectedItemID == left, "Tabs outside the split don't take the selection")
+    }
+
+    @Test(arguments: [
+        (true, true, false, false, true, true),
+        (false, true, false, false, true, false),
+        (true, false, false, false, true, false),
+        (true, true, true, false, true, false),
+        (true, true, false, true, true, false),
+        (true, true, false, false, false, false),
+    ])
+    func `playing videos move to Picture in Picture when their tab is left`(
+        isPlaying: Bool, hasVideo: Bool, isInPiP: Bool, isStillVisible: Bool, isEnabled: Bool, expected: Bool,
+    ) {
+        var media = MediaState()
+        media.isPlaying = isPlaying
+        media.hasVideo = hasVideo
+        media.isInPictureInPicture = isInPiP
+        #expect(BrowserWindowModel.shouldMoveToPictureInPicture(media, isStillVisible: isStillVisible, isEnabled: isEnabled) == expected)
+    }
+
+    @Test func `sidebar drags carry the item in Marc's own type`() async {
+        let id = SidebarItem.ID()
+        let provider = SidebarDragPayload.provider(for: id)
+        #expect(provider.hasItemConformingToTypeIdentifier(SidebarDragPayload.itemType.identifier))
+        #expect(!provider.hasItemConformingToTypeIdentifier("public.plain-text"), "Web views would take plain text")
+        let data: Data? = await withCheckedContinuation { continuation in
+            _ = provider.loadDataRepresentation(forTypeIdentifier: SidebarDragPayload.itemType.identifier) { data, _ in
+                continuation.resume(returning: data)
+            }
+        }
+        #expect(data.flatMap { String(data: $0, encoding: .utf8) } == id.rawValue.uuidString)
     }
 
     @Test func `drop highlights reset once drag updates stop`() async throws {

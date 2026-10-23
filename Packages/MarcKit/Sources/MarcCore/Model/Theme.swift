@@ -1,7 +1,8 @@
 import Foundation
 
 /// The visual theme of a Space: a gradient of one to three colors rendered behind the browser
-/// chrome, an appearance preference and an optional film-grain intensity.
+/// chrome, an appearance preference, an optional film-grain intensity and an optional
+/// translucency that lets the desktop show through the window's background.
 public struct Theme: Hashable, Sendable, Codable {
     public enum Appearance: String, Hashable, Sendable, Codable, CaseIterable {
         case automatic
@@ -15,12 +16,16 @@ public struct Theme: Hashable, Sendable, Codable {
     public var appearance: Appearance
     /// Film grain strength in `0...1`.
     public var grain: Double
+    /// How much of the desktop shows through the background, in `0...1`; 0 is opaque. Web pages
+    /// stay opaque either way.
+    public var translucency: Double
 
-    public init(colors: [RGBColor], appearance: Appearance = .automatic, grain: Double = 0) {
+    public init(colors: [RGBColor], appearance: Appearance = .automatic, grain: Double = 0, translucency: Double = 0) {
         precondition(!colors.isEmpty, "A theme needs at least one color")
         self.colors = Array(colors.prefix(Self.maximumColorCount))
         self.appearance = appearance
         self.grain = min(max(grain, 0), 1)
+        self.translucency = min(max(translucency, 0), 1)
     }
 
     public init(from decoder: any Decoder) throws {
@@ -30,6 +35,7 @@ public struct Theme: Hashable, Sendable, Codable {
             colors: decodedColors.isEmpty ? Self.default.colors : decodedColors,
             appearance: container.decodeIfPresent(Appearance.self, forKey: .appearance) ?? .automatic,
             grain: container.decodeIfPresent(Double.self, forKey: .grain) ?? 0,
+            translucency: container.decodeIfPresent(Double.self, forKey: .translucency) ?? 0,
         )
     }
 

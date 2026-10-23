@@ -15,8 +15,9 @@ struct ContentArea: View {
                 if let split = window.selectedSplit, let layout = split.split?.layout {
                     SplitContainer(window: window, splitID: split.id, layout: layout)
                 } else if let item = window.selectedItem {
+                    // No `.id(item.id)` here: keeping the same web container across tab switches lets
+                    // it show recently used pages instantly (see WebContainerView).
                     ContentCard { PaneContent(window: window, itemID: item.id) }
-                        .id(item.id)
                 } else {
                     ContentCard { EmptyContentView(window: window) }
                 }
@@ -52,9 +53,11 @@ struct PaneContent: View {
             switch item.content {
             case let .note(noteID):
                 NoteEditorView(window: window, noteID: noteID)
+                    .id(noteID)
             case let .tab(content):
                 if let url = content.url, let page = InternalPage(url: url) {
                     InternalPageView(window: window, page: page)
+                        .id(itemID)
                 } else if let tab = window.runtimeTab(for: itemID) {
                     WebPane(window: window, tab: tab, token: token)
                 } else {
@@ -235,10 +238,12 @@ private struct ContentDropDelegate: DropDelegate {
     func performDrop(info: DropInfo) -> Bool {
         let placeBefore = edge == .leading
         edge = nil
-        guard let anchor = window.selectedItemID else { return false }
+        guard let selected = window.selectedItemID else { return false }
         let window = window
         Task { @MainActor in
             guard let payload = await SidebarDragPayload.load(from: info) else { return }
+            if case let .item(id) = payload, id == selected { return }
+            guard let anchor = window.splittableAnchor(selected) else { return }
             let otherID: SidebarItem.ID
             switch payload {
             case let .item(id):

@@ -59,6 +59,11 @@
     observeHead();
   }
 
+  // A video is in Picture in Picture through the standard API or WebKit's presentation modes.
+  const pictureInPictureVideo = () =>
+    document.pictureInPictureElement ||
+    Array.from(document.querySelectorAll("video")).find((video) => video.webkitPresentationMode === "picture-in-picture");
+
   const reportMedia = () => {
     const media = Array.from(document.querySelectorAll("video, audio"));
     const active = media.filter((element) => !element.paused && !element.ended);
@@ -71,6 +76,7 @@
       isMuted: media.length > 0 && media.every((element) => element.muted),
       hasVideo: media.some((element) => element.tagName === "VIDEO" && element.readyState > 0),
       hasMedia: media.length > 0,
+      isInPictureInPicture: Boolean(pictureInPictureVideo()),
       title: metadata && metadata.title ? metadata.title : null,
       artist: metadata && metadata.artist ? metadata.artist : null,
       artwork,
@@ -85,7 +91,9 @@
       }, 50);
     }
   };
-  for (const name of ["play", "playing", "pause", "ended", "volumechange", "emptied", "loadedmetadata"]) {
+  const mediaEvents = ["play", "playing", "pause", "ended", "volumechange", "emptied", "loadedmetadata",
+    "enterpictureinpicture", "leavepictureinpicture", "webkitpresentationmodechanged"];
+  for (const name of mediaEvents) {
     document.addEventListener(name, scheduleMedia, true);
   }
 
@@ -118,15 +126,39 @@
     return "none";
   };
 
-  window.__marcPictureInPicture = async () => {
-    const video = Array.from(document.querySelectorAll("video")).find((element) => element.readyState > 0);
-    if (!video || !document.pictureInPictureEnabled) return false;
-    if (document.pictureInPictureElement) {
-      await document.exitPictureInPicture();
-      return true;
+  // The video worth showing: a playing one first, otherwise the largest one with data.
+  const pictureInPictureCandidate = () => {
+    const videos = Array.from(document.querySelectorAll("video")).filter((video) => video.readyState > 0);
+    const area = (video) => video.clientWidth * video.clientHeight;
+    return videos.find((video) => !video.paused && !video.ended) || videos.sort((a, b) => area(b) - area(a))[0];
+  };
+
+  // mode: "toggle", "enter" or "exit". Returns what happened, for Marc's log.
+  window.__marcPictureInPicture = async (mode) => {
+    const current = pictureInPictureVideo();
+    if (current) {
+      if (mode === "enter") return "already";
+      if (document.pictureInPictureElement) await document.exitPictureInPicture();
+      else current.webkitSetPresentationMode("inline");
+      return "exited";
     }
-    await video.requestPictureInPicture();
-    return true;
+    if (mode === "exit") return "none";
+    const video = pictureInPictureCandidate();
+    if (!video) return "no-video";
+    video.removeAttribute("disablepictureinpicture");
+    try {
+      if (document.pictureInPictureEnabled && typeof video.requestPictureInPicture === "function") {
+        await video.requestPictureInPicture();
+        return "entered";
+      }
+    } catch (error) {
+      // Fall back to WebKit's presentation modes, which don't require the standard API.
+    }
+    if (typeof video.webkitSupportsPresentationMode === "function" && video.webkitSupportsPresentationMode("picture-in-picture")) {
+      video.webkitSetPresentationMode("picture-in-picture");
+      return "entered";
+    }
+    return "unsupported";
   };
 
   window.__marcPageText = (limit) => {

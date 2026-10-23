@@ -5,14 +5,21 @@ import MarcWebKit
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// Sidebar drags carry the item identifier as text with a private prefix, so that the same drop
-/// targets also accept links dragged from web pages and other apps.
+/// Sidebar drags carry the item identifier in a private type that web views don't accept, so a tab
+/// dragged onto a page reaches Marc's split drop target instead of the page. The same drop targets
+/// also accept links and text dragged from web pages and other apps.
 enum SidebarDragPayload {
-    static let prefix = "marc-sidebar-item:"
-    static let types: [UTType] = [.plainText, .url, .fileURL]
+    static let itemType = UTType(exportedAs: "dev.devleloper.marc.sidebar-item", conformingTo: .data)
+    static let types: [UTType] = [itemType, .url, .fileURL, .plainText]
 
     static func provider(for id: SidebarItem.ID) -> NSItemProvider {
-        NSItemProvider(object: "\(prefix)\(id.rawValue.uuidString)" as NSString)
+        let provider = NSItemProvider()
+        let data = Data(id.rawValue.uuidString.utf8)
+        provider.registerDataRepresentation(forTypeIdentifier: itemType.identifier, visibility: .ownProcess) { completion in
+            completion(data, nil)
+            return nil
+        }
+        return provider
     }
 
     enum Content {
@@ -23,18 +30,27 @@ enum SidebarDragPayload {
     /// Reads the first usable payload from a drop.
     @MainActor
     static func load(from info: DropInfo) async -> Content? {
+        if let provider = info.itemProviders(for: [itemType]).first {
+            let data = await loadData(from: provider)
+            return data.flatMap { String(data: $0, encoding: .utf8) }.flatMap(SidebarItem.ID.init(uuidString:)).map(Content.item)
+        }
         if let provider = info.itemProviders(for: [.url]).first,
            let url = await loadURL(from: provider), url.isWebURL || url.isFileURL {
             return .url(url)
         }
         guard let provider = info.itemProviders(for: [.plainText]).first, let text = await loadText(from: provider) else { return nil }
-        if text.hasPrefix(prefix), let id = SidebarItem.ID(uuidString: String(text.dropFirst(prefix.count))) {
-            return .item(id)
-        }
         if case let .url(url) = URLInputClassifier().classify(text), url.isWebURL {
             return .url(url)
         }
         return nil
+    }
+
+    private static func loadData(from provider: NSItemProvider) async -> Data? {
+        await withCheckedContinuation { continuation in
+            _ = provider.loadDataRepresentation(forTypeIdentifier: itemType.identifier) { data, _ in
+                continuation.resume(returning: data)
+            }
+        }
     }
 
     private static func loadText(from provider: NSItemProvider) async -> String? {

@@ -84,6 +84,11 @@ targets:
             CFBundleTypeRole: Viewer
             LSHandlerRank: Alternate
             LSItemContentTypes: [com.apple.webarchive]
+        # Sidebar items being dragged inside Marc (see SidebarDragPayload).
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: dev.devleloper.marc.sidebar-item
+            UTTypeDescription: Marc sidebar item
+            UTTypeConformsTo: [public.data]
     entitlements:
       path: Marc/Resources/Marc.entitlements
       properties:

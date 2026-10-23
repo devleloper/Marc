@@ -100,8 +100,8 @@ public enum Typography {
 /// Animation primitives. Curves were fitted to frame-by-frame recordings of Arc.
 public enum Motion {
     /// Sidebar show/hide: a critically damped spring. Arc's measured 100 ms ease-out felt abrupt
-    /// with the page resizing alongside, so this is deliberately a little longer.
-    public static let sidebarToggle = Animation.smooth(duration: 0.3)
+    /// with the page resizing alongside, so this is a little longer, but still quick.
+    public static let sidebarToggle = Animation.smooth(duration: 0.2)
     /// Pressing a control: it sinks quickly and springs back with a little bounce on release.
     public static let pressDown = Animation.easeOut(duration: 0.08)
     public static let pressUp = Animation.spring(response: 0.3, dampingFraction: 0.55)

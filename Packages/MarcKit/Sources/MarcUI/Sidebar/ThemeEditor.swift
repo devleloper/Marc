@@ -4,7 +4,8 @@ import MarcDesignSystem
 import MarcWebKit
 import SwiftUI
 
-/// Picks a Space theme: up to three colors placed on a hue field, appearance and grain.
+/// Picks a Space theme: up to three colors placed on a hue field, appearance, grain and
+/// translucency.
 struct ThemeEditor: View {
     @Binding var theme: Theme
     @State private var selectedHandle = 0
@@ -61,6 +62,16 @@ struct ThemeEditor: View {
             }
             .accessibilityElement(children: .combine)
             .accessibilityLabel("Grain")
+
+            HStack {
+                Image(systemName: "square.fill").foregroundStyle(.secondary)
+                Slider(value: $theme.translucency, in: 0 ... 1) { Text("Translucency") }
+                    .labelsHidden()
+                Image(systemName: "square.dashed").foregroundStyle(.secondary)
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Translucency")
+            .help("Translucency: lets the desktop show through the window's background")
         }
         .padding(16)
         .frame(width: 300)
