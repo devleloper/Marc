@@ -1,0 +1,39 @@
+name: Feature request
+description: Suggest a new feature or a change to how Marc behaves.
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Check the [roadmap](https://github.com/devleloper/Marc/blob/main/docs/ROADMAP.md) and the
+        [platform limitations](https://github.com/devleloper/Marc/blob/main/docs/LIMITATIONS.md) first:
+        some Arc features have no public WebKit API.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the situation and why the current behavior falls short.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How should it work? Include shortcuts, menus and edge cases you have in mind.
+    validations:
+      required: true
+  - type: textarea
+    id: arc
+    attributes:
+      label: How does Arc (or another browser) handle this?
+      description: Describe the behavior. Please don't attach Arc's assets or code.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contribution
+      options:
+        - label: I'd like to work on this myself.

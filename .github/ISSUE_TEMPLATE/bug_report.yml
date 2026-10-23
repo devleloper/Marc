@@ -1,0 +1,86 @@
+name: Bug report
+description: Something in Marc doesn't work as expected.
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. **Security issues must not be reported here**;
+        follow [SECURITY.md](https://github.com/devleloper/Marc/blob/main/SECURITY.md) instead.
+        Please remove personal data (URLs of private pages, account names) from screenshots and logs.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: A clear description of the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open a new tab with ⌘T
+        2. …
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen? If it works differently in Arc, describe how.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Sidebar, tabs or folders
+        - Spaces, themes or profiles
+        - Command Bar
+        - Split View, Peek or Little window
+        - Web pages and navigation
+        - Downloads
+        - Boosts or Notes
+        - Content blocking
+        - Web extensions
+        - Passwords and autofill
+        - Import from another browser
+        - AI features
+        - Settings or onboarding
+        - Updates
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Marc version
+      description: Marc → About Marc, or the commit you built from.
+      placeholder: 0.1.0 (42)
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version and Mac
+      placeholder: macOS 26.4.1, MacBook Pro (M3)
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs, crash reports or screenshots
+      description: |
+        Crash reports are in Console → Crash Reports. Marc's log messages can be collected with
+        `log show --last 10m --predicate 'subsystem == "dev.devleloper.Marc"'`.
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched the existing issues and this hasn't been reported yet.
+          required: true
+        - label: The problem still happens with web extensions turned off (if it involves web pages).
