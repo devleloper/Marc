@@ -28,8 +28,14 @@ func gradient(_ colors: [CGColor]) -> CGGradient {
 }
 
 func glow(_ ctx: CGContext, at center: CGPoint, radius: CGFloat, _ tint: UInt32, _ alpha: CGFloat) {
-    ctx.drawRadialGradient(gradient([color(tint, alpha), color(tint, 0)]), startCenter: center, startRadius: 0,
-                           endCenter: center, endRadius: radius, options: [])
+    ctx.drawRadialGradient(
+        gradient([color(tint, alpha), color(tint, 0)]),
+        startCenter: center,
+        startRadius: 0,
+        endCenter: center,
+        endRadius: radius,
+        options: [],
+    )
 }
 
 func font(_ size: CGFloat, _ weight: NSFont.Weight, rounded: Bool = false) -> NSFont {
