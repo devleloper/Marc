@@ -5,11 +5,15 @@ DERIVED := build/DerivedData
 XCODEBUILD := xcodebuild -project $(PROJECT) -scheme $(SCHEME) -destination 'platform=macOS' -derivedDataPath $(DERIVED)
 BEAUTIFY := $(shell command -v xcbeautify >/dev/null 2>&1 && echo "| xcbeautify" || echo "")
 
-.PHONY: bootstrap project build run test test-package test-ui lint format clean
+.PHONY: bootstrap tools project build run test test-package test-ui lint format clean
 
 bootstrap:
 	brew bundle --file=Brewfile
 	$(MAKE) project
+
+# The exact tool versions CI uses, installed into .tools/bin.
+tools:
+	scripts/install-tools.sh
 
 project:
 	xcodegen generate --quiet

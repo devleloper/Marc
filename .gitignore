@@ -17,6 +17,9 @@ build/
 .build/
 .swiftpm/
 
+# Pinned developer tools installed by scripts/install-tools.sh
+.tools/
+
 # Release artifacts
 *.dmg
 *.zip

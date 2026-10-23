@@ -1,5 +1,5 @@
 --swiftversion 6.2
---exclude Packages/MarcKit/.build,build,DerivedData
+--exclude Packages/MarcKit/.build,build,DerivedData,.tools
 
 --indent 4
 --maxwidth 140
