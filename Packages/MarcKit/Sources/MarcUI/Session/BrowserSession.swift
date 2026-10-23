@@ -92,6 +92,7 @@ public final class BrowserSession {
         }
         downloads.onFinished = { [weak self] download, profileID in self?.downloadDidFinish(download, profileID: profileID) }
         startMaintenance()
+        Task { [weak self] in await self?.fillMissingFavicons() }
     }
 
     var enabledFilterLists: [FilterListSource] {
@@ -288,6 +289,36 @@ public final class BrowserSession {
         }
         if recentlyClosed.count > 50 { recentlyClosed.removeFirst(recentlyClosed.count - 50) }
         archive.add(archived)
+    }
+
+    // MARK: - Favicons
+
+    /// Fetches site icons for saved tabs that have never loaded, so the sidebar shows real icons
+    /// instead of letter tiles. Requests go through the cookie-less favicon session, a few at a time.
+    func fillMissingFavicons() async {
+        let missing = Array(store.workspace.tabsMissingFavicons())
+        for batch in stride(from: 0, to: missing.count, by: 4).map({ missing[$0 ..< min($0 + 4, missing.count)] }) {
+            guard !Task.isCancelled else { return }
+            let found = await withTaskGroup(of: URL?.self) { group in
+                for (iconURL, _) in batch {
+                    group.addTask { await self.engine.favicons.image(for: iconURL) != nil ? iconURL : nil }
+                }
+                var found = Set<URL>()
+                for await url in group {
+                    if let url { found.insert(url) }
+                }
+                return found
+            }
+            let updates = batch.filter { found.contains($0.key) }
+            guard !updates.isEmpty else { continue }
+            store.update { workspace in
+                for (iconURL, itemIDs) in updates {
+                    for id in itemIDs {
+                        try? workspace.updateTab(id) { if $0.faviconURL == nil { $0.faviconURL = iconURL } }
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - Maintenance

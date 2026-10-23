@@ -93,6 +93,7 @@ struct ImportSheet: View {
                 imported.history = (try? session.services.importers.readHistory(source, historyURL)) ?? []
             }
             let summary = try window.store.update { try $0.apply(imported, targetSpace: spaceID) }
+            Task { await session.fillMissingFavicons() }
             if !imported.history.isEmpty, let profile = window.profile {
                 try? await session.profileServices(for: profile).history.importPages(imported.history)
             }
