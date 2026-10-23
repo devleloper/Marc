@@ -70,8 +70,12 @@ See the [feature inventory](docs/FEATURE_INVENTORY.md) for the complete list wit
 
 ## Installation
 
-Signed releases will be published on the [Releases page](https://github.com/devleloper/Marc/releases)
-and update themselves through Sparkle. Until then, build Marc from source:
+Download the latest preview build from the [Releases page](https://github.com/devleloper/Marc/releases).
+Previews aren't notarized yet: after moving Marc to Applications and trying to open it, choose
+**Open Anyway** in System Settings → Privacy & Security. They don't update themselves, so check
+the Releases page for new versions. Notarized builds with automatic updates will follow.
+
+Or build Marc from source:
 
 ```bash
 git clone https://github.com/devleloper/Marc.git

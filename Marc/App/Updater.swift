@@ -1,7 +1,7 @@
 import AppKit
 import Sparkle
 
-/// Sparkle-based updates. Development builds have no `SUPublicEDKey`, so the updater stays off
+/// Sparkle-based updates. Development and preview builds have no `SUPublicEDKey`, so the updater stays off
 /// and "Check for Updates" explains where releases come from.
 @MainActor
 final class Updater {
@@ -24,9 +24,9 @@ final class Updater {
             return
         }
         let alert = NSAlert()
-        alert.messageText = "Updates Are Off in This Build"
+        alert.messageText = "This Build Doesn't Update Itself"
         alert.informativeText = """
-        This is a development build. Signed releases of Marc update themselves automatically; download them \
+        Development and preview builds of Marc can't install updates automatically. Download new versions \
         from GitHub Releases.
         """
         alert.addButton(withTitle: "Open Releases")

@@ -1,13 +1,44 @@
 # Releasing Marc
 
-Releases are built by the [Release workflow](../.github/workflows/release.yml). It produces a
-Developer ID-signed, notarized and stapled `Marc-<version>.dmg`, a SHA-256 checksum and a signed
-Sparkle `appcast.xml`, and attaches them to a **draft** GitHub release. Nothing reaches users
-until a maintainer reviews the draft and publishes it by hand: Sparkle reads the feed from
-`releases/latest`, which ignores drafts and pre-releases.
+Releases are built by the [Release workflow](../.github/workflows/release.yml) and attached to
+a **draft** GitHub release. Nothing reaches users until a maintainer reviews the draft and
+publishes it by hand. The workflow has two modes:
+
+| Mode | When | Result |
+| --- | --- | --- |
+| **Signed** | All secrets in [Repository configuration](#4-repository-configuration) are set. | Developer ID-signed, notarized and stapled `Marc-<version>.dmg`, a SHA-256 checksum and a signed Sparkle `appcast.xml`. Installed copies update themselves. |
+| **Preview** | None of those secrets are set (the current setup). | An ad hoc-signed `Marc-<version>.dmg` and its checksum, always marked as a pre-release. |
+
+If only some of the secrets are set, the workflow stops with an error rather than guessing.
 
 Development builds (`make build`, CI) are ad-hoc signed and have updates turned off. None of the
 steps below are needed to build or contribute to Marc.
+
+## Preview builds
+
+Preview builds need no Apple Developer account, at the cost of a rougher experience for people
+who install them:
+
+- macOS blocks the first launch. Users move Marc to Applications, try to open it, then choose
+  **Open Anyway** in System Settings → Privacy & Security. The release notes explain this
+  automatically.
+- There are no automatic updates: without a Sparkle key, *Check for Updates* opens the Releases
+  page instead.
+- Each build has a different ad hoc signature, so after an update macOS may ask once whether Marc
+  can use the passwords it saved in the keychain.
+- GitHub's `releases/latest` never points at a pre-release, so preview builds are only listed on
+  the Releases page.
+
+Preview builds turn the hardened runtime off: with it on, library validation refuses to load the
+ad hoc-signed Sparkle framework and the app quits at launch. Both workflows launch the built app
+with `scripts/smoke-test.sh` to catch problems like this before anything is published.
+
+Tag previews with a pre-release suffix, for example `v0.1.0-preview.1`. Their notes come from the
+matching `## [0.1.0-preview.1]` section of the changelog if there is one, otherwise from
+`## [0.1.0]`, otherwise from *Unreleased*.
+
+Switching to signed releases later only needs the one-time setup below; the workflow picks the
+signed mode as soon as every secret is present.
 
 ## One-time setup
 
