@@ -107,7 +107,25 @@ Status legend: **v1** — in scope for the first release · **later** — planne
 | Auto-update | Sparkle 2 (EdDSA, appcast on GitHub Releases) | v1 |
 | Memory saver | Unload inactive tabs, restore via `interactionState` | v1 |
 
-## 7. Keyboard shortcuts (Arc reference)
+## 7. Motion (measured)
+
+Timings were measured frame by frame from 60 fps screen recordings of Arc.
+
+| Interaction | Measured behavior | Marc motion token |
+| --- | --- | --- |
+| Toggle sidebar (`⌘S`) | ≈100 ms; progress 0.52 / 0.81 / 0.94 / 0.985 at successive frames — an ease-out quart curve. Hidden sidebar leaves a 10 pt inset around the content card. | `Motion.sidebarToggle` = `timingCurve(0.25, 1, 0.5, 1, 0.1)` |
+| Switch Space | ≈300 ms horizontal pager; the remaining offset decays exponentially (τ ≈ 43 ms), i.e. ease-out expo. Only the Space page (header, pinned, today) moves; toolbar, address field and favorites stay. Favicons fade in after the page lands. | `Motion.spacePage` = `timingCurve(0.16, 1, 0.3, 1, 0.3)` |
+| Command Bar open/close | Appears and disappears within one frame; the page behind is not dimmed. | `Motion.instant` |
+| Row hover | Fill changes immediately to 10 % white; close button appears on the trailing edge. | `Motion.hover` (≈80 ms ease-out) |
+
+## 8. Menus observed
+
+- **Sidebar `+` menu:** New Space, New Folder · New Easel `⌃⇧E`, New Boost · New Split `⌃⇧=`, New Tab `⌘T`. While open, the `+` turns into `✕`.
+- **Today tab context menu:** Copy Link, Share ▸ · Change Icon…, Rename…, Mute, Customize Page… · Open in Split View, Duplicate, Move to ▸ · Archive Tab, Archive Tabs Below.
+- **Site Control Center:** action row (Share, Boost, Capture, Capture Full Page), Extensions (with add button), per-site Settings toggles (e.g. Developer Mode, Automatic Picture-in-Picture), footer with connection security pill and a more (`⋯`) button.
+- The *Clear* button next to the Today divider is only shown while the pointer is over the sidebar and gains a `↓` glyph.
+
+## 9. Keyboard shortcuts (Arc reference)
 
 | Action | Shortcut | | Action | Shortcut |
 | --- | --- | --- | --- | --- |
