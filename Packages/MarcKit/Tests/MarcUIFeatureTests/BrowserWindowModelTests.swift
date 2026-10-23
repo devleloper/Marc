@@ -31,7 +31,10 @@ struct BrowserWindowModelTests {
         window.noteDropActivity(quietPeriod: .milliseconds(20))
         window.noteDropActivity(quietPeriod: .milliseconds(20))
         #expect(window.dropHighlightResets == before, "Updates keep the highlight")
-        try await Task.sleep(for: .milliseconds(200))
+        // Poll rather than sleep a fixed time: busy CI machines can take a while to run the reset.
+        for _ in 0 ..< 250 where window.dropHighlightResets == before {
+            try await Task.sleep(for: .milliseconds(20))
+        }
         #expect(window.dropHighlightResets == before + 1, "One reset after updates stop")
     }
 
