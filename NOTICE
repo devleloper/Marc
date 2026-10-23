@@ -1,0 +1,31 @@
+Marc
+Copyright 2026 The Marc Authors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Marc is an independent open-source project. It is not affiliated with, endorsed by or sponsored
+by The Browser Company of New York, Inc. "Arc" is a trademark of its owner and is mentioned only
+to describe the interaction model Marc implements. Marc contains no code, images, icons, fonts,
+sounds or other assets from Arc.
+
+This product depends on the following third-party software, fetched by Swift Package Manager
+at build time and linked into the application:
+
+  GRDB.swift - MIT License
+  Copyright (C) 2015-2025 Gwendal Roué
+  https://github.com/groue/GRDB.swift
+
+  Sparkle - MIT License
+  Copyright (c) 2006-2013 Andy Matuschak, Elgato Systems GmbH, Kornel Lesiński and other
+  Sparkle contributors (see the project's LICENSE for the full list)
+  https://github.com/sparkle-project/Sparkle
+
+This product bundles the following data:
+
+  The IANA list of top-level domains (Packages/MarcKit/Sources/MarcCore/Resources/
+  top-level-domains.txt), published by the Internet Assigned Numbers Authority at
+  https://data.iana.org/TLD/tlds-alpha-by-domain.txt
+
+Content-blocking filter lists (EasyList, EasyPrivacy and Fanboy's Annoyance List) are not
+bundled. When the user enables them, Marc downloads them from their publishers, and they remain
+subject to their own licenses.

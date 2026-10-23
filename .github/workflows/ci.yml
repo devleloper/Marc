@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+
+defaults:
+  run:
+    # An explicit shell adds `-o pipefail`, so `xcodebuild … | xcbeautify` fails when xcodebuild does.
+    shell: bash
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: macos-26
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned tools
+        run: |
+          scripts/install-tools.sh
+          echo "$PWD/.tools/bin" >> "$GITHUB_PATH"
+      - name: SwiftFormat
+        run: swiftformat --lint .
+      - name: SwiftLint
+        run: swiftlint lint --strict --reporter github-actions-logging
+
+  package-tests:
+    name: Package tests
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: Packages/MarcKit/.build
+          key: spm-${{ runner.os }}-xcode26.6-${{ hashFiles('Packages/MarcKit/Package.swift') }}
+          restore-keys: spm-${{ runner.os }}-xcode26.6-
+      - name: Swift version
+        run: swift --version
+      - name: Run tests
+        run: swift test --package-path Packages/MarcKit
+
+  app:
+    name: App build and UI tests
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned tools
+        run: |
+          scripts/install-tools.sh
+          echo "$PWD/.tools/bin" >> "$GITHUB_PATH"
+      - name: Generate the Xcode project
+        run: xcodegen generate
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/DerivedData/SourcePackages
+          key: xcode-packages-${{ runner.os }}-${{ hashFiles('project.yml', 'Packages/MarcKit/Package.swift') }}
+          restore-keys: xcode-packages-${{ runner.os }}-
+      - name: Build for testing (Debug)
+        run: >-
+          xcodebuild -project Marc.xcodeproj -scheme Marc -configuration Debug
+          -destination 'platform=macOS' -derivedDataPath build/DerivedData
+          build-for-testing | xcbeautify --renderer github-actions
+      - name: Run UI tests
+        run: >-
+          xcodebuild -project Marc.xcodeproj -scheme Marc -configuration Debug
+          -destination 'platform=macOS' -derivedDataPath build/DerivedData
+          -resultBundlePath build/UITests.xcresult
+          test-without-building | xcbeautify --renderer github-actions
+      - name: Build Release
+        run: >-
+          xcodebuild -project Marc.xcodeproj -scheme Marc -configuration Release
+          -destination 'generic/platform=macOS' -derivedDataPath build/DerivedData
+          build | xcbeautify --renderer github-actions
+      - name: Upload UI test results
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ui-test-results
+          path: build/UITests.xcresult
+          retention-days: 7

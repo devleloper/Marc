@@ -12,11 +12,13 @@ excluded:
 disabled_rules:
   - trailing_comma # SwiftFormat owns comma style
   - opening_brace # SwiftFormat owns brace wrapping
+  - closure_end_indentation # SwiftFormat owns indentation
+  - modifier_order # SwiftFormat owns modifier order
+  - multiple_closures_with_trailing_closure # conflicts with SwiftUI's `action:` + trailing `label` idiom
   - todo
 
 opt_in_rules:
   - array_init
-  - closure_end_indentation
   - closure_spacing
   - contains_over_filter_count
   - contains_over_first_not_nil
@@ -35,7 +37,6 @@ opt_in_rules:
   - last_where
   - legacy_multiple
   - literal_expression_end_indentation
-  - modifier_order
   - operator_usage_whitespace
   - overridden_super_call
   - pattern_matching_keywords
@@ -71,6 +72,7 @@ function_body_length:
 cyclomatic_complexity:
   warning: 12
   error: 20
+  ignores_case_statements: true
 
 identifier_name:
   min_length:
