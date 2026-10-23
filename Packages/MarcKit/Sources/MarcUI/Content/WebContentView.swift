@@ -1,4 +1,5 @@
 import AppKit
+import MarcCore
 import MarcWebKit
 import SwiftUI
 import WebKit
@@ -8,14 +9,24 @@ import WebKit
 struct WebContentView: NSViewRepresentable {
     let tab: WebTab
     let token: UUID
+    /// A sidebar tab dragged over the page: which half it's over (`true` = leading), or `nil` when it
+    /// leaves; and the drop itself.
+    var onSidebarDragUpdate: (Bool?) -> Void = { _ in }
+    var onSidebarDrop: (SidebarItem.ID, _ placeBefore: Bool) -> Void = { _, _ in }
 
     func makeNSView(context: Context) -> WebContainerView {
         let view = WebContainerView()
-        view.attach(tab, token: token)
+        update(view)
         return view
     }
 
     func updateNSView(_ view: WebContainerView, context: Context) {
+        update(view)
+    }
+
+    private func update(_ view: WebContainerView) {
+        view.onSidebarDragUpdate = onSidebarDragUpdate
+        view.onSidebarDrop = onSidebarDrop
         view.attach(tab, token: token)
     }
 
@@ -33,8 +44,69 @@ final class WebContainerView: NSView {
     /// Tabs shown here before the current one, most recent first. Their web views stay hidden.
     private var parked: [WeakTab] = []
     private static let parkingLimit = 4
+    var onSidebarDragUpdate: ((Bool?) -> Void)?
+    var onSidebarDrop: ((SidebarItem.ID, Bool) -> Void)?
+    private static let sidebarItemType = NSPasteboard.PasteboardType(MarcPasteboardType.sidebarItem)
 
     override var isFlipped: Bool { true }
+
+    override init(frame: NSRect) {
+        super.init(frame: frame)
+        registerForDraggedTypes([Self.sidebarItemType])
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) is not supported")
+    }
+
+    // MARK: - Sidebar tabs dropped on the page (Split View)
+
+    // These also receive the drags MarcWebView passes on, so the page never handles sidebar tabs.
+
+    override func draggingEntered(_ sender: any NSDraggingInfo) -> NSDragOperation {
+        trackSidebarDrag(sender)
+    }
+
+    override func draggingUpdated(_ sender: any NSDraggingInfo) -> NSDragOperation {
+        trackSidebarDrag(sender)
+    }
+
+    override func draggingExited(_ sender: (any NSDraggingInfo)?) {
+        onSidebarDragUpdate?(nil)
+    }
+
+    override func draggingEnded(_ sender: any NSDraggingInfo) {
+        onSidebarDragUpdate?(nil)
+    }
+
+    override func prepareForDragOperation(_ sender: any NSDraggingInfo) -> Bool {
+        isSidebarDrag(sender)
+    }
+
+    override func performDragOperation(_ sender: any NSDraggingInfo) -> Bool {
+        onSidebarDragUpdate?(nil)
+        let pasteboard = sender.draggingPasteboard
+        let text = pasteboard.string(forType: Self.sidebarItemType)
+            ?? pasteboard.data(forType: Self.sidebarItemType).flatMap { String(data: $0, encoding: .utf8) }
+        guard let id = text.flatMap(SidebarItem.ID.init(uuidString:)) else { return false }
+        onSidebarDrop?(id, isOverLeadingHalf(sender))
+        return true
+    }
+
+    private func trackSidebarDrag(_ sender: any NSDraggingInfo) -> NSDragOperation {
+        guard isSidebarDrag(sender) else { return [] }
+        onSidebarDragUpdate?(isOverLeadingHalf(sender))
+        return .copy
+    }
+
+    private func isSidebarDrag(_ sender: any NSDraggingInfo) -> Bool {
+        sender.draggingPasteboard.availableType(from: [Self.sidebarItemType]) != nil
+    }
+
+    private func isOverLeadingHalf(_ sender: any NSDraggingInfo) -> Bool {
+        convert(sender.draggingLocation, from: nil).x < bounds.midX
+    }
 
     func attach(_ newTab: WebTab, token: UUID) {
         var hadKeyboardFocus = false

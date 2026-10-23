@@ -9,13 +9,15 @@ import UniformTypeIdentifiers
 /// dragged onto a page reaches Marc's split drop target instead of the page. The same drop targets
 /// also accept links and text dragged from web pages and other apps.
 enum SidebarDragPayload {
-    static let itemType = UTType(exportedAs: "dev.devleloper.marc.sidebar-item", conformingTo: .data)
+    static let itemType = UTType(exportedAs: MarcPasteboardType.sidebarItem, conformingTo: .data)
     static let types: [UTType] = [itemType, .url, .fileURL, .plainText]
 
     static func provider(for id: SidebarItem.ID) -> NSItemProvider {
         let provider = NSItemProvider()
         let data = Data(id.rawValue.uuidString.utf8)
-        provider.registerDataRepresentation(forTypeIdentifier: itemType.identifier, visibility: .ownProcess) { completion in
+        // Visible to the system pasteboard: drags travel through it, and with process-only
+        // visibility AppKit may not list the type, so no drop target would match.
+        provider.registerDataRepresentation(forTypeIdentifier: itemType.identifier, visibility: .all) { completion in
             completion(data, nil)
             return nil
         }

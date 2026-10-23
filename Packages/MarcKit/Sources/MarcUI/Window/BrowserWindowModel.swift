@@ -48,6 +48,8 @@ public final class BrowserWindowModel: Identifiable {
     public var boostEditor: BoostEditorModel?
     public var findFocusRequest = 0
     public var siteControlItemID: SidebarItem.ID?
+    /// While a tab is dragged over the page: which half it would split into (`true` = leading).
+    public var splitDropPlacesBefore: Bool?
     /// Set by the window controller; full screen hides the traffic lights, so the toolbar moves left.
     public var isFullScreen = false
     /// Incremented once a drag over the sidebar has gone quiet, so drop highlights reset even when

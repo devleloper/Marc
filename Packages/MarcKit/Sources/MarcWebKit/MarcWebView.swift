@@ -1,9 +1,50 @@
 import AppKit
+import MarcCore
 import WebKit
 
 /// `WKWebView` with Marc's link context-menu items.
 public final class MarcWebView: WKWebView {
     weak var owner: WebTab?
+
+    // MARK: - Sidebar drags
+
+    // A sidebar tab dragged onto the page is for Marc (Split View), not for the page: hand those
+    // drags to the containing view, which shows the split highlight and performs the drop.
+
+    private func sidebarDragTarget(for sender: any NSDraggingInfo) -> NSView? {
+        let type = NSPasteboard.PasteboardType(MarcPasteboardType.sidebarItem)
+        return sender.draggingPasteboard.availableType(from: [type]) != nil ? superview : nil
+    }
+
+    override public func draggingEntered(_ sender: any NSDraggingInfo) -> NSDragOperation {
+        if let target = sidebarDragTarget(for: sender) { return target.draggingEntered(sender) }
+        return super.draggingEntered(sender)
+    }
+
+    override public func draggingUpdated(_ sender: any NSDraggingInfo) -> NSDragOperation {
+        if let target = sidebarDragTarget(for: sender) { return target.draggingUpdated(sender) }
+        return super.draggingUpdated(sender)
+    }
+
+    override public func draggingExited(_ sender: (any NSDraggingInfo)?) {
+        if let sender, let target = sidebarDragTarget(for: sender) { return target.draggingExited(sender) }
+        super.draggingExited(sender)
+    }
+
+    override public func prepareForDragOperation(_ sender: any NSDraggingInfo) -> Bool {
+        if let target = sidebarDragTarget(for: sender) { return target.prepareForDragOperation(sender) }
+        return super.prepareForDragOperation(sender)
+    }
+
+    override public func performDragOperation(_ sender: any NSDraggingInfo) -> Bool {
+        if let target = sidebarDragTarget(for: sender) { return target.performDragOperation(sender) }
+        return super.performDragOperation(sender)
+    }
+
+    override public func concludeDragOperation(_ sender: (any NSDraggingInfo)?) {
+        if let sender, let target = sidebarDragTarget(for: sender) { return target.concludeDragOperation(sender) }
+        super.concludeDragOperation(sender)
+    }
 
     override public func mouseDown(with event: NSEvent) {
         if let owner { owner.delegate?.webTabDidReceiveClick(owner) }

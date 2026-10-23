@@ -7,7 +7,6 @@ import SwiftUI
 /// the assistant and Boost editor panels.
 struct ContentArea: View {
     @Bindable var window: BrowserWindowModel
-    @State private var splitDropEdge: Edge?
 
     var body: some View {
         HStack(spacing: Metrics.Content.splitSpacing) {
@@ -21,11 +20,11 @@ struct ContentArea: View {
                 } else {
                     ContentCard { EmptyContentView(window: window) }
                 }
-                if let edge = splitDropEdge {
-                    SplitDropHighlight(edge: edge)
+                if let placesBefore = window.splitDropPlacesBefore {
+                    SplitDropHighlight(placesBefore: placesBefore)
                 }
             }
-            .onDrop(of: SidebarDragPayload.types, delegate: ContentDropDelegate(window: window, edge: $splitDropEdge))
+            .onDrop(of: SidebarDragPayload.types, delegate: ContentDropDelegate(window: window))
 
             if let assistant = window.assistant {
                 AssistantPanel(window: window, assistant: assistant)
@@ -116,10 +115,15 @@ private struct WebPane: View {
             if let host = tab.host, host != AnyHashable(token) {
                 OtherWindowPlaceholder { tab.host = token }
             } else {
-                WebContentView(tab: tab, token: token)
-                    .opacity(tab.failure == nil ? 1 : 0)
-                    .accessibilityLabel(tab.title.isEmpty ? "Web content" : tab.title)
-                    .accessibilityIdentifier("webContent")
+                WebContentView(
+                    tab: tab,
+                    token: token,
+                    onSidebarDragUpdate: { window.updateSplitDrop(placesBefore: $0) },
+                    onSidebarDrop: { id, placeBefore in window.split(with: .item(id), anchor: tab.id, placeBefore: placeBefore) },
+                )
+                .opacity(tab.failure == nil ? 1 : 0)
+                .accessibilityLabel(tab.title.isEmpty ? "Web content" : tab.title)
+                .accessibilityIdentifier("webContent")
                 LoadingBar(tab: tab)
             }
             if let failure = tab.failure {
@@ -212,78 +216,5 @@ struct LinkStatusBar: View {
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 6, style: .continuous).strokeBorder(.black.opacity(0.08), lineWidth: 0.5))
             .frame(maxWidth: 520, alignment: .leading)
-    }
-}
-
-/// Drop a tab or link on the left or right half of the content to view it side by side.
-private struct ContentDropDelegate: DropDelegate {
-    let window: BrowserWindowModel
-    @Binding var edge: Edge?
-
-    func validateDrop(info: DropInfo) -> Bool {
-        window.selectedItem?.kind == .tab && window.kind != .little && info.hasItemsConforming(to: SidebarDragPayload.types)
-    }
-
-    func dropUpdated(info: DropInfo) -> DropProposal? {
-        let width = window.nsWindow?.contentView?.bounds.width ?? 1000
-        let newEdge: Edge = info.location.x < (width - (window.isSidebarVisible ? window.state.sidebarWidth : 0)) / 2 ? .leading : .trailing
-        if edge != newEdge { withAnimation(Motion.hover) { edge = newEdge } }
-        return DropProposal(operation: .copy)
-    }
-
-    func dropExited(info: DropInfo) {
-        withAnimation(Motion.hover) { edge = nil }
-    }
-
-    func performDrop(info: DropInfo) -> Bool {
-        let placeBefore = edge == .leading
-        edge = nil
-        guard let selected = window.selectedItemID else { return false }
-        let window = window
-        Task { @MainActor in
-            guard let payload = await SidebarDragPayload.load(from: info) else { return }
-            if case let .item(id) = payload, id == selected { return }
-            guard let anchor = window.splittableAnchor(selected) else { return }
-            let otherID: SidebarItem.ID
-            switch payload {
-            case let .item(id):
-                guard id != anchor, window.workspace.items[id]?.kind == .tab else { return }
-                if window.workspace.items[id]?.container.section == .favorites {
-                    guard let duplicate = try? window.store.update({ try $0.duplicateTab(id) }) else { return }
-                    otherID = duplicate
-                } else {
-                    otherID = id
-                }
-            case let .url(url):
-                guard let spaceID = window.state.spaceID,
-                      let id = try? window.store.update({ try $0.openTab(TabContent(url: url), placement: .todayTop(spaceID)) })
-                else { return }
-                window.runtimeTab(for: id)?.load(url, initiator: .user, transition: .link)
-                otherID = id
-            }
-            withAnimation(Motion.surface) {
-                try? window.store.update { try $0.split(anchor, with: otherID, axis: .horizontal, placeAfter: !placeBefore) }
-            }
-            window.select(otherID)
-        }
-        return true
-    }
-}
-
-private struct SplitDropHighlight: View {
-    let edge: Edge
-
-    var body: some View {
-        GeometryReader { proxy in
-            RoundedRectangle(cornerRadius: Metrics.Content.cornerRadius, style: Metrics.Content.cornerStyle)
-                .fill(Color.accentColor.opacity(0.18))
-                .overlay(RoundedRectangle(cornerRadius: Metrics.Content.cornerRadius, style: Metrics.Content.cornerStyle).strokeBorder(
-                    Color.accentColor,
-                    lineWidth: 2,
-                ))
-                .frame(width: proxy.size.width / 2)
-                .frame(maxWidth: .infinity, alignment: edge == .leading ? .leading : .trailing)
-        }
-        .allowsHitTesting(false)
     }
 }
