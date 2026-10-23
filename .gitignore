@@ -13,9 +13,10 @@ build/
 *.xcresult
 *.xcuserstate
 
-# Swift Package Manager
+# Swift Package Manager (dependencies are pinned exactly in Package.swift and project.yml)
 .build/
 .swiftpm/
+Package.resolved
 
 # Pinned developer tools installed by scripts/install-tools.sh
 .tools/

@@ -50,7 +50,7 @@ jobs:
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: Packages/MarcKit/.build
-          key: spm-${{ runner.os }}-xcode26.6-${{ hashFiles('Packages/MarcKit/Package.swift', 'Packages/MarcKit/Package.resolved') }}
+          key: spm-${{ runner.os }}-xcode26.6-${{ hashFiles('Packages/MarcKit/Package.swift') }}
           restore-keys: spm-${{ runner.os }}-xcode26.6-
       - name: Swift version
         run: swift --version
@@ -74,7 +74,7 @@ jobs:
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: build/DerivedData/SourcePackages
-          key: xcode-packages-${{ runner.os }}-${{ hashFiles('project.yml', 'Packages/MarcKit/Package.swift', 'Packages/MarcKit/Package.resolved') }}
+          key: xcode-packages-${{ runner.os }}-${{ hashFiles('project.yml', 'Packages/MarcKit/Package.swift') }}
           restore-keys: xcode-packages-${{ runner.os }}-
       - name: Build for testing (Debug)
         run: >-
