@@ -186,3 +186,10 @@ public struct SplitContent: Hashable, Sendable, Codable {
         self.layout = layout
     }
 }
+
+/// Pasteboard types Marc uses for its own drags.
+public enum MarcPasteboardType {
+    /// A sidebar item being dragged; the data is the item's UUID string. Declared in the app's
+    /// Info.plist. Web views don't accept it, so it never ends up in a page.
+    public static let sidebarItem = "dev.devleloper.marc.sidebar-item"
+}
