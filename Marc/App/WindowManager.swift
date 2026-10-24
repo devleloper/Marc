@@ -14,13 +14,19 @@ final class WindowManager {
     private var settingsPane = SettingsPaneState()
     private var onboardingWindow: NSWindow?
     private let welcome = WelcomeIntroController()
+    /// UI tests play the intro silently.
+    private let playsWelcomeMusic: Bool
 
-    init(session: BrowserSession, updater: Updater) {
+    init(session: BrowserSession, updater: Updater, playsWelcomeMusic: Bool = true) {
         self.session = session
         self.updater = updater
+        self.playsWelcomeMusic = playsWelcomeMusic
         session.presentWindow = { [weak self] model in self?.present(model) }
         session.showSettings = { [weak self] pane in self?.showSettings(pane) }
         session.checkForUpdates = { [weak self] in self?.updater.checkForUpdates() }
+        session.showWelcome = { [weak self] in
+            self?.showWelcome { [weak self] in self?.showOnboarding() }
+        }
     }
 
     private func present(_ model: BrowserWindowModel) {
@@ -58,9 +64,9 @@ final class WindowManager {
     }
 
     /// Plays the full-screen welcome intro, then calls `completion`.
-    func showWelcome(playsMusic: Bool = true, then completion: @escaping () -> Void = {}) {
+    func showWelcome(then completion: @escaping () -> Void = {}) {
         guard !welcome.isShowing else { return }
-        welcome.show(playsMusic: playsMusic, onFinish: completion)
+        welcome.show(playsMusic: playsWelcomeMusic, onFinish: completion)
     }
 
     func showOnboarding() {

@@ -22,7 +22,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let environment = try await AppEnvironment.make()
             self.environment = environment
             appIcon = AppIconController(settings: environment.session.settings)
-            let windows = WindowManager(session: environment.session, updater: environment.updater)
+            let windows = WindowManager(
+                session: environment.session,
+                updater: environment.updater,
+                playsWelcomeMusic: !environment.isUITesting,
+            )
             self.windows = windows
             let menu = MainMenu(session: environment.session, windows: windows)
             self.menu = menu
@@ -35,7 +39,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let needsOnboarding = !environment.session.settings.settings.hasCompletedOnboarding
             // New users are greeted by the intro, then onboarding. `-show-welcome` plays it on demand.
             if needsOnboarding || ProcessInfo.processInfo.arguments.contains("-show-welcome") {
-                windows.showWelcome(playsMusic: !environment.isUITesting) {
+                windows.showWelcome {
                     if needsOnboarding { windows.showOnboarding() }
                 }
             }
