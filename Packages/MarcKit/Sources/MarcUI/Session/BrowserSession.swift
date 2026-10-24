@@ -39,6 +39,8 @@ public final class BrowserSession {
     @ObservationIgnored public var closeWindow: ((BrowserWindowModel) -> Void)?
     @ObservationIgnored public var showSettings: ((SettingsPane) -> Void)?
     @ObservationIgnored public var checkForUpdates: (() -> Void)?
+    /// Plays the welcome intro, then the onboarding walkthrough. Set by the app.
+    @ObservationIgnored public var showWelcome: (() -> Void)?
 
     public init(snapshot: WorkspaceSnapshot, services: SessionServices, engine: WebEngine) {
         let store = WorkspaceStore(workspace: snapshot.workspace, repository: services.workspaceRepository)

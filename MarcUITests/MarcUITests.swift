@@ -115,6 +115,25 @@ final class MarcUITests: XCTestCase {
     }
 
     @MainActor
+    func testShowWelcomeAgainFromSettings() {
+        let app = launch()
+        defer { app.terminate() }
+        XCTAssertTrue(app.windows.firstMatch.waitForExistence(timeout: 10))
+        app.typeKey(",", modifierFlags: .command)
+        let advanced = app.staticTexts["Advanced"].firstMatch
+        XCTAssertTrue(advanced.waitForExistence(timeout: 5))
+        advanced.click()
+        let showWelcome = app.buttons["showWelcomeAgain"]
+        XCTAssertTrue(showWelcome.waitForExistence(timeout: 5))
+        showWelcome.click()
+        let skip = app.buttons["welcomeSkip"]
+        XCTAssertTrue(skip.waitForExistence(timeout: 5), "The intro plays right away")
+        app.typeKey(.escape, modifierFlags: [])
+        XCTAssertTrue(skip.waitForNonExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["onboardingContinue"].waitForExistence(timeout: 5), "Onboarding follows the intro")
+    }
+
+    @MainActor
     func testCreatingASpace() {
         // With some keyboard layouts (such as U.S. International – PC) XCUITest synthesizes "c" as
         // ⌘C, so typed test strings avoid that letter.

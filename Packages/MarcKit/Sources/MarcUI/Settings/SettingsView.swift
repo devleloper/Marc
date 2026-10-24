@@ -332,7 +332,8 @@ private struct AdvancedSettings: View {
                 .foregroundStyle(.secondary)
             }
             Section("Onboarding") {
-                Button("Show Welcome Again") { session.settings.settings.hasCompletedOnboarding = false }
+                Button("Show Welcome Again") { session.showWelcome?() }
+                    .accessibilityIdentifier("showWelcomeAgain")
             }
         }
     }
