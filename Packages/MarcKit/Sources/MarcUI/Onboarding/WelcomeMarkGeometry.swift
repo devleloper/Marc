@@ -115,11 +115,21 @@ struct WelcomeMarkGeometry {
         Self.unitOverlap.applying(transform)
     }
 
-    // MARK: Colors (the Aurora icon's)
+    // MARK: Tile
+
+    /// The icon's rounded tile around the mark: 824 units wide, centered 18 units above the mark.
+    func tile(appearance: Double) -> Path {
+        let side = 824 * scale * (0.94 + 0.06 * appearance)
+        let rect = CGRect(x: center.x - side / 2, y: center.y - 18 * scale - side / 2, width: side, height: side)
+        return Path(roundedRect: rect, cornerRadius: side * 0.225, style: .continuous)
+    }
+
+    // MARK: Colors (the white Marc icon's)
 
     static let leftColors = [Color(hex: 0xA58BFF), Color(hex: 0x6A4CF0)]
     static let rightColors = [Color(hex: 0x4BE3CD), Color(hex: 0x1BB0D0)]
-    static let overlapColors = [Color(hex: 0xBFF2FF), Color(hex: 0x7AC7FC)]
+    /// A deeper sky blue than the Aurora icon's, so the shared stem stands out on white.
+    static let overlapColors = [Color(hex: 0x9BD8FF), Color(hex: 0x5AA6F6)]
 
     var leftGradient: (start: CGPoint, end: CGPoint) {
         (point(CGPoint(x: 30, y: 44)), point(CGPoint(x: 330, y: 524)))
