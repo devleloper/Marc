@@ -103,7 +103,7 @@ Status legend: **v1** — in scope for the first release · **later** — planne
 | Import | Arc (Spaces, pinned, folders, favorites), Chrome (bookmarks, history), Safari (bookmarks, history), HTML bookmarks | v1 |
 | Default browser & link handling | `NSWorkspace.setDefaultApplication`, `http/https` URL types | v1 |
 | Settings `⌘,` | General, Profiles, Search, Privacy & Security, Passwords, Extensions, AI, Shortcuts, Advanced | v1 |
-| Welcome intro | Full screen on first launch: the mark draws itself, lands with a flash, shockwave and star warp, then the greeting and orbiting Space cards; synthesized soundtrack (`AVAudioEngine`); Return / Escape / M; Reduce Motion; Help › Replay Welcome | v1 |
+| Welcome intro | Full screen on first launch: light pastel backdrop; the mark draws itself and settles into the icon tile with a soft bloom and ripples, then the greeting and orbiting Space cards; synthesized soundtrack (`AVAudioEngine`); Return / Escape / M; Reduce Motion; Help › Replay Welcome | v1 |
 | Onboarding | Welcome → import → theme → default browser | v1 |
 | Auto-update | Sparkle 2 (EdDSA, appcast on GitHub Releases) | v1 |
 | Memory saver | Unload inactive tabs, restore via `interactionState` | v1 |

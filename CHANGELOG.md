@@ -41,9 +41,10 @@ The first public version will be 0.1.0.
   and profiles; onboarding; default-browser registration.
 - **App icon** in two styles, the white Marc tile and the dark Aurora tile, chosen in Settings ›
   General or matched to light and dark appearance.
-- A full-screen **welcome intro** for new users: the Marc mark draws itself over drifting aurora
-  light, lands with a burst of light and warping stars, and the greeting arrives with a few
-  Spaces floating around it. It plays an original soundtrack synthesized on the fly (nothing is
+- A full-screen **welcome intro** for new users, in the light lavender-and-mint look of Marc's
+  preview card: the Marc mark draws itself with a soft pen of light, settles into the app icon's
+  white tile with a gentle bloom and pastel ripples, and the greeting arrives with a few Spaces
+  floating around it. It plays an original soundtrack synthesized on the fly (nothing is
   bundled), can be muted with M and skipped with Escape, respects Reduce Motion, and can be
   replayed from Help › Replay Welcome.
 - A **disk image** with a designed window: background, arrow and Applications shortcut.

@@ -17,11 +17,13 @@ struct WelcomeIntroTests {
         #expect(timeline(impact).rightArchDrawn == 1)
     }
 
-    @Test func `the impact flashes in time with the music`() {
+    @Test func `the impact blooms in time with the music`() {
         let impact = WelcomeTheme.impactTime
-        #expect(timeline(impact - 0.01).flash == 0)
-        #expect(timeline(impact).flash > 0.3)
-        #expect(timeline(impact + 1).flash < 0.01)
+        #expect(timeline(impact - 0.2).flash == 0)
+        #expect(timeline(impact).flash > 0.4)
+        #expect(timeline(impact + 2).flash < 0.01)
+        #expect(timeline(impact - 0.5).tile == 0)
+        #expect(timeline(impact + 1).tile > 0.95)
         #expect(timeline(impact + 0.3).shockwaves.contains { $0 != nil })
         #expect(timeline(impact + 2).shockwaves.allSatisfy { $0 == nil })
     }
@@ -37,10 +39,30 @@ struct WelcomeIntroTests {
     @Test func `reduce motion replaces movement with fades`() {
         let calm = timeline(3.6, reduceMotion: true)
         #expect(calm.flash == 0)
-        #expect(calm.warpStreak == 0)
+        #expect(calm.impactGlow == 0)
+        #expect(calm.particleTravel == 0)
         #expect(calm.shockwaves.allSatisfy { $0 == nil })
         #expect(calm.leftArchDrawn == 1)
         #expect(timeline(3, reduceMotion: true).button == 1)
+    }
+
+    /// Glows ramp instead of switching on: no value may jump between two frames at 120 Hz.
+    @Test func `glows never jump between frames`() {
+        let step = 1.0 / 120
+        for frame in 0 ..< 1500 {
+            let now = timeline(Double(frame) * step), next = timeline(Double(frame + 1) * step)
+            let pairs: [(Double, Double)] = [
+                (now.markGlow, next.markGlow),
+                (now.impactGlow, next.impactGlow),
+                (now.flash, next.flash),
+                (now.penIntensity(drawn: now.leftArchDrawn), next.penIntensity(drawn: next.leftArchDrawn)),
+                (now.archOpacity(drawn: now.rightArchDrawn), next.archOpacity(drawn: next.rightArchDrawn)),
+                (now.tile, next.tile),
+            ]
+            for (current, upcoming) in pairs {
+                #expect(abs(upcoming - current) < 0.08, "Jump at \(Double(frame) * step) s")
+            }
+        }
     }
 
     @Test func `the exit eases from 0 to 1`() {

@@ -28,9 +28,12 @@ struct WelcomeIntroScene: View {
         SpaceCard(symbol: "sparkles", name: "Ideas", color: 0xF5C95C),
     ]
 
+    /// Ink for text on the light backdrop, the navy of Marc's social preview.
+    static let ink = Color(hex: 0x1E1A3A)
+
     /// Where the mark is drawn: centered while it draws, then smaller above the greeting.
     static func markFrame(in size: CGSize, timeline: WelcomeIntroTimeline) -> CGRect {
-        let width = size.height * 0.34 * timeline.markScale
+        let width = size.height * 0.3 * timeline.markScale
         let height = width * WelcomeMarkGeometry.aspectRatio
         let center = CGPoint(x: size.width / 2, y: size.height * timeline.markCenterY)
         return CGRect(x: center.x - width / 2, y: center.y - height / 2, width: width, height: height)
@@ -45,13 +48,13 @@ struct WelcomeIntroScene: View {
                 WelcomeBurst(timeline: timeline)
                 greeting(in: size)
             }
-            .scaleEffect(1 + 0.12 * exit)
-            .blur(radius: 24 * exit)
+            .scaleEffect(1 + 0.08 * exit)
+            .blur(radius: 16 * exit)
             .opacity(1 - exit)
             .overlay(alignment: .topTrailing) { controls }
         }
         .ignoresSafeArea()
-        .environment(\.colorScheme, .dark)
+        .environment(\.colorScheme, .light)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("welcomeIntro")
     }
@@ -64,15 +67,15 @@ struct WelcomeIntroScene: View {
         return ZStack {
             Text("Welcome to \(Text("Marc").foregroundStyle(WelcomeTitleRenderer.brandGradient))")
                 .font(.system(size: fontSize, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(Self.ink)
                 .textRenderer(WelcomeTitleRenderer(letters: letters, sheen: timeline.titleSheen, rise: fontSize * 0.45))
-                .shadow(color: Color(hex: 0x8E72FF, opacity: 0.5 * (letters.last ?? 0)), radius: fontSize * 0.45)
+                .shadow(color: Color(hex: 0x6A4CF0, opacity: 0.12 * (letters.last ?? 0)), radius: fontSize * 0.3, y: fontSize * 0.08)
                 .fixedSize()
                 .position(x: size.width / 2, y: size.height * 0.505)
                 .accessibilityLabel("Welcome to Marc")
             Text(Self.subtitle)
                 .font(.system(size: fontSize * 0.3, weight: .medium))
-                .foregroundStyle(.white.opacity(0.72))
+                .foregroundStyle(Color(hex: 0x4A4570))
                 .opacity(timeline.subtitle)
                 .offset(y: (1 - timeline.subtitle) * fontSize * 0.25)
                 .blur(radius: (1 - timeline.subtitle) * 6)
@@ -82,7 +85,7 @@ struct WelcomeIntroScene: View {
                 .position(x: size.width / 2, y: size.height * 0.7)
             Text("Press Return to begin")
                 .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(.white.opacity(0.45))
+                .foregroundStyle(Self.ink.opacity(0.4))
                 .opacity(timeline.hint)
                 .fixedSize()
                 .position(x: size.width / 2, y: size.height - 44)
@@ -102,12 +105,13 @@ struct WelcomeIntroScene: View {
                 .background {
                     Capsule()
                         .fill(gradient)
-                        .blur(radius: fontSize * 0.32)
-                        .opacity(0.5 + 0.25 * pulse)
+                        .blur(radius: fontSize * 0.3)
+                        .opacity(0.32 + 0.14 * pulse)
+                        .offset(y: fontSize * 0.08)
                         .scaleEffect(1.06 + 0.04 * pulse)
                 }
                 .background(Capsule().fill(gradient))
-                .overlay(Capsule().strokeBorder(.white.opacity(0.35), lineWidth: 1))
+                .overlay(Capsule().strokeBorder(.white.opacity(0.45), lineWidth: 1))
                 .contentShape(Capsule())
         }
         .buttonStyle(.pressable)
@@ -120,7 +124,7 @@ struct WelcomeIntroScene: View {
 
     // MARK: Space cards
 
-    /// Glass cards for a few example Spaces, flying out from the greeting onto a slow orbit.
+    /// Frosted cards for a few example Spaces, floating out from the greeting onto a slow orbit.
     private func spaceCards(in size: CGSize) -> some View {
         let center = CGPoint(x: size.width / 2, y: size.height * 0.52)
         let radiusX = min(size.width * 0.41, size.height * 0.78)
@@ -139,8 +143,8 @@ struct WelcomeIntroScene: View {
                 WelcomeSpaceCardView(card: Self.cards[index], unit: unit)
                     .scaleEffect((0.78 + 0.3 * depth) * (0.3 + 0.7 * appearance))
                     .rotation3DEffect(.degrees(-cos(angle) * 16), axis: (x: 0, y: 1, z: 0), perspective: 0.6)
-                    .blur(radius: (1 - depth) * 2.5 + (1 - appearance) * 8)
-                    .opacity(appearance * (0.5 + 0.45 * depth))
+                    .blur(radius: (1 - depth) * 2 + (1 - appearance) * 8)
+                    .opacity(appearance * (0.6 + 0.4 * depth))
                     .position(
                         x: center.x + (orbit.x - center.x) * appearance,
                         y: center.y + (orbit.y - center.y) * appearance,
@@ -159,7 +163,8 @@ struct WelcomeIntroScene: View {
             Button(action: onToggleMute) {
                 Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
                     .frame(width: 34, height: 34)
-                    .background(Circle().fill(.white.opacity(0.1)))
+                    .background(Circle().fill(.white.opacity(0.7)))
+                    .overlay(Circle().strokeBorder(Self.ink.opacity(0.08), lineWidth: 1))
                     .contentShape(Circle())
             }
             .keyboardShortcut("m", modifiers: [])
@@ -170,7 +175,8 @@ struct WelcomeIntroScene: View {
                 Text("Skip")
                     .padding(.horizontal, 16)
                     .frame(height: 34)
-                    .background(Capsule().fill(.white.opacity(0.1)))
+                    .background(Capsule().fill(.white.opacity(0.7)))
+                    .overlay(Capsule().strokeBorder(Self.ink.opacity(0.08), lineWidth: 1))
                     .contentShape(Capsule())
             }
             .keyboardShortcut(.cancelAction)
@@ -179,7 +185,7 @@ struct WelcomeIntroScene: View {
         }
         .buttonStyle(.pressable)
         .font(.system(size: 13, weight: .semibold))
-        .foregroundStyle(.white.opacity(0.82))
+        .foregroundStyle(Self.ink.opacity(0.7))
         .padding(.top, 28)
         .padding(.trailing, 32)
         .opacity(timeline.controls * (1 - exit))
@@ -203,15 +209,15 @@ private struct WelcomeSpaceCardView: View {
                     .background(Circle().fill(tint.gradient))
                 Text(card.name)
                     .font(.system(size: 13 * unit, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.92))
+                    .foregroundStyle(WelcomeIntroScene.ink.opacity(0.85))
             }
             ForEach(0 ..< 3, id: \.self) { row in
                 HStack(spacing: 7 * unit) {
                     RoundedRectangle(cornerRadius: 3 * unit, style: .continuous)
-                        .fill(.white.opacity(0.32))
+                        .fill(tint.opacity(0.35))
                         .frame(width: 10 * unit, height: 10 * unit)
                     Capsule()
-                        .fill(.white.opacity(0.16))
+                        .fill(WelcomeIntroScene.ink.opacity(0.1))
                         .frame(width: CGFloat(78 - row * 16) * unit, height: 6 * unit)
                 }
             }
@@ -220,25 +226,31 @@ private struct WelcomeSpaceCardView: View {
         .frame(width: 168 * unit, height: 122 * unit, alignment: .topLeading)
         .background {
             shape
-                .fill(LinearGradient(colors: [tint.opacity(0.4), tint.opacity(0.1)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                .background(shape.fill(.white.opacity(0.05)))
+                .fill(LinearGradient(colors: [tint.opacity(0.14), tint.opacity(0.03)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                .background(shape.fill(.white.opacity(0.78)))
         }
         .overlay {
             shape.strokeBorder(
-                LinearGradient(colors: [.white.opacity(0.38), .white.opacity(0.06)], startPoint: .top, endPoint: .bottom),
+                LinearGradient(colors: [.white, tint.opacity(0.18)], startPoint: .top, endPoint: .bottom),
                 lineWidth: 1,
             )
         }
-        .shadow(color: tint.opacity(0.35), radius: 24 * unit, y: 10 * unit)
+        .shadow(color: tint.opacity(0.22), radius: 22 * unit, y: 10 * unit)
     }
 }
 
-/// Reveals the title glyph by glyph (each rises, sharpens and fades in), then sweeps a glow
-/// across it. Drawing the laid-out text keeps its kerning, unlike a row of single letters.
+/// Reveals the title glyph by glyph (each rises, sharpens and fades in), then sweeps a soft
+/// violet glow across it. Drawing the laid-out text keeps its kerning, unlike a row of single
+/// letters.
 struct WelcomeTitleRenderer: TextRenderer {
     static let glyphCount = "Welcome to Marc".count
-    static let brandColors = [Color(hex: 0xA58BFF), Color(hex: 0x6FA8FA), Color(hex: 0x4BE3CD)]
-    static let brandGradient = LinearGradient(colors: brandColors, startPoint: .leading, endPoint: .trailing)
+    static let brandColors = [Color(hex: 0x8E72FF), Color(hex: 0x5AA6F6), Color(hex: 0x2CC9C2)]
+    /// Deeper than the button's colors, so "Marc" reads well on the light backdrop.
+    static let brandGradient = LinearGradient(
+        colors: [Color(hex: 0x7457F0), Color(hex: 0x4A8DF0), Color(hex: 0x16AEBF)],
+        startPoint: .leading,
+        endPoint: .trailing,
+    )
 
     /// Appearance of each glyph, 0...1.
     let letters: [Double]
@@ -262,17 +274,18 @@ struct WelcomeTitleRenderer: TextRenderer {
                     if appearance < 1 {
                         copy.addFilter(.blur(radius: (1 - appearance) * rise * 0.35))
                     }
-                    copy.draw(glyph)
                     let position = glyph.typographicBounds.rect.midX / width
                     let highlight = exp(-pow((position - sheen) / 0.1, 2))
                     if highlight > 0.01 {
-                        // A bloom rather than a brighter copy, which white glyphs wouldn't show.
-                        var shine = copy
-                        shine.blendMode = .plusLighter
-                        shine.opacity = appearance * highlight * 0.9
-                        shine.addFilter(.blur(radius: rise * 0.22))
-                        shine.draw(glyph)
+                        var glow = copy
+                        glow.addFilter(.shadow(
+                            color: Color(hex: 0x8E72FF, opacity: 0.75 * highlight),
+                            radius: rise * 0.3,
+                            options: .shadowOnly,
+                        ))
+                        glow.draw(glyph)
                     }
+                    copy.draw(glyph)
                 }
             }
         }
