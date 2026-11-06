@@ -22,7 +22,7 @@ let package = Package(
     dependencies: [
         // Pinned exactly: Package.resolved is not checked in, because Xcode and SwiftPM write
         // different versions of it (the app adds Sparkle).
-        .package(url: "https://github.com/groue/GRDB.swift", exact: "7.11.1"),
+        .package(url: "https://github.com/groue/GRDB.swift", exact: "7.12.0"),
     ],
     targets: [
         .target(name: "MarcCore", resources: [.process("Resources")], swiftSettings: commonSettings),
